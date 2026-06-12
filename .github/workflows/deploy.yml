@@ -14,6 +14,6 @@ jobs:
 
       - name: Deploy
         run: |
-          cd /mnt/Safe/data/cctweaked
+          cd /app
           docker compose down
           docker compose up -d --build
