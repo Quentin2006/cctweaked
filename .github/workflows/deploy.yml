@@ -15,5 +15,6 @@ jobs:
       - name: Deploy
         run: |
           cd /app
+          git pull
           docker compose down
           docker compose up -d --build
