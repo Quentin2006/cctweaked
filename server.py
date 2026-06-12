@@ -1,8 +1,6 @@
 import asyncio
 import websockets
 
-# comment
-
 
 async def handle(ws):
     print("Computer connected!")
