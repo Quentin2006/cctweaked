@@ -29,7 +29,7 @@ async def handle(ws):
     async def periodic():
         while True:
             await asyncio.sleep(5)  # every 5 seconds
-            await ws.send("check_inventory()")
+            await ws.send("turtle.up()")
 
     await asyncio.gather(reader(), periodic())
 
