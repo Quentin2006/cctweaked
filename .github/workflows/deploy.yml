@@ -1,0 +1,19 @@
+name: Deploy to NAS
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        run: |
+          cd /mnt/Safe/data/cctweaked
+          docker compose down
+          docker compose up -d --build
