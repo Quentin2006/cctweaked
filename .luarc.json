@@ -1,0 +1,37 @@
+{
+    "diagnostics.disable": [
+        "missing-fields",
+        "undefined-field"
+    ],
+    "diagnostics.globals": [
+        "http",
+        "fs",
+        "textutils",
+        "print",
+        "turtle",
+        "rednet",
+        "redstone",
+        "peripheral",
+        "os",
+        "shell",
+        "term",
+        "colors",
+        "io",
+        "paintutils",
+        "parallel",
+        "settings",
+        "multishell",
+        "help",
+        "window",
+        "vector",
+        "disk",
+        "keys",
+        "gps",
+        "commands",
+        "pocket"
+    ],
+    "workspace.library": [
+        "/home/qscheetz/.local/share/luals-libs/CC-Tweaked"
+    ],
+    "workspace.checkThirdParty": false
+}
