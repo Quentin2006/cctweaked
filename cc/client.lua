@@ -6,12 +6,12 @@ if not ws then
 end
 
 -- Send something
-print("Enter 'q' to exit and 'h' for help")
+print("Enter 'Q' to exit and 'h' for help")
 while true do
 	::continue::
 	local c_msg = io.read()
 
-	if c_msg == "q" then
+	if c_msg == "Q" then
 		break
 	end
 
