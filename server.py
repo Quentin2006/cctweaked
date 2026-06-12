@@ -6,7 +6,9 @@ async def main():
     manager = TurtleManager()
     await manager.start()
 
-    await manager.move(Move.UP, 5)
+    while True:
+        await manager.move(Move.UP, 5)
+        await asyncio.sleep(10)
 
 
 asyncio.run(main())
