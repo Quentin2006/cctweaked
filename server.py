@@ -36,6 +36,8 @@ def create_app(manager):
             return web.json_response({"error": "Use: FORWARD, UP, DOWN"}, status=400)
         except asyncio.TimeoutError:
             return web.json_response({"error": "turtle did not respond"}, status=504)
+        except ConnectionError:
+            return web.json_response({"error": "turtle not connected"}, status=503)
 
     async def handle_blocks(request):
         blocks = []
@@ -78,6 +80,9 @@ def create_app(manager):
         except asyncio.TimeoutError:
             return web.json_response({"error": "turtle did not respond"},
                                      status=504)
+        except ConnectionError:
+            return web.json_response({"error": "turtle not connected"},
+                                     status=503)
 
     async def handle_inventory_get(request):
         try:
@@ -86,6 +91,9 @@ def create_app(manager):
         except asyncio.TimeoutError:
             return web.json_response({"error": "turtle did not respond"},
                                      status=504)
+        except ConnectionError:
+            return web.json_response({"error": "turtle not connected"},
+                                     status=503)
 
     async def handle_inventory_post(request):
         try:
@@ -136,6 +144,9 @@ def create_app(manager):
         except asyncio.TimeoutError:
             return web.json_response({"error": "turtle did not respond"},
                                      status=504)
+        except ConnectionError:
+            return web.json_response({"error": "turtle not connected"},
+                                     status=503)
 
     app.router.add_get("/", handle_index)
     app.router.add_get("/move.js", lambda _: web.FileResponse("web/move.js"))  # pyright: ignore

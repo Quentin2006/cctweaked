@@ -178,7 +178,7 @@ class TurtleManager:
 
     async def _dispatch_loop(self):
         while True:
-            if self.commands:
+            if self.commands and self.ws is not None:
                 move, code = self.commands.pop(0)
                 await self.ws.send(json.dumps({"code": code}))
                 self._update_position(move)
@@ -197,6 +197,8 @@ class TurtleManager:
             self.commands.append((move, move.value))
 
     async def execute(self, code: str, timeout: float = 30.0):
+        if self.ws is None:
+            raise ConnectionError("Turtle not connected")
         req_id = str(uuid.uuid4())
         loop = asyncio.get_running_loop()
         future = loop.create_future()
