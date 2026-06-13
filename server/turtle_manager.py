@@ -323,6 +323,7 @@ class TurtleManager:
         self._dispatch_task = asyncio.create_task(self._dispatch_loop())
         async def server(ws, path=None):
             conn = TurtleConnection("turtle", ws)
+            conn._recv_task = asyncio.create_task(conn._start_recv())
             self.turtles[conn.id] = conn
             self._current_turtle_id = conn.id
             try:
@@ -346,6 +347,8 @@ class TurtleManager:
                 pass
             finally:
                 conn.connected = False
+                if conn._recv_task:
+                    conn._recv_task.cancel()
                 if self._current_turtle_id == conn.id:
                     self._current_turtle_id = None
         try:
