@@ -95,6 +95,14 @@ def create_app(manager):
             return web.json_response({"error": "turtle not connected"},
                                      status=503)
 
+    async def handle_position(request):
+        return web.json_response({
+            "x": manager.x,
+            "y": manager.y,
+            "z": manager.z,
+            "facing": manager.facing,
+        })
+
     async def handle_inventory_post(request):
         try:
             data = await request.json()
@@ -157,6 +165,7 @@ def create_app(manager):
     app.router.add_post("/move", handle_move)
     app.router.add_post("/detect", handle_detect)
     app.router.add_get("/blocks", handle_blocks)
+    app.router.add_get("/position", handle_position)
     app.router.add_post("/action", handle_action)
     app.router.add_get("/inventory", handle_inventory_get)
     app.router.add_post("/inventory", handle_inventory_post)

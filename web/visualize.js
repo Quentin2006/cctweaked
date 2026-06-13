@@ -62,6 +62,88 @@ scene.add(gridHelper);
 const blockGroup = new THREE.Group();
 scene.add(blockGroup);
 
+// --- Turtle Model ---
+const turtleGroup = new THREE.Group();
+scene.add(turtleGroup);
+
+const TURTLE_BODY_COLOR = 0x44c767;
+const TURTLE_HEAD_COLOR = 0x66e389;
+const TURTLE_ACCENT_COLOR = 0x00e5ff;
+
+const bodyGeo = new THREE.BoxGeometry(0.8, 0.5, 0.8);
+const bodyMat = new THREE.MeshLambertMaterial({
+  color: TURTLE_BODY_COLOR,
+  emissive: TURTLE_BODY_COLOR,
+  emissiveIntensity: 0.08,
+});
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+body.position.y = 0.25;
+turtleGroup.add(body);
+
+const bodyEdges = new THREE.EdgesGeometry(bodyGeo);
+const bodyEdgeMat = new THREE.LineBasicMaterial({
+  color: TURTLE_ACCENT_COLOR,
+  transparent: true,
+  opacity: 0.25,
+});
+const bodyWire = new THREE.LineSegments(bodyEdges, bodyEdgeMat);
+bodyWire.position.copy(body.position);
+turtleGroup.add(bodyWire);
+
+const headGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+const headMat = new THREE.MeshLambertMaterial({ color: TURTLE_HEAD_COLOR });
+const head = new THREE.Mesh(headGeo, headMat);
+head.position.set(0, 0.25, 0.55);
+turtleGroup.add(head);
+
+// Direction indicator — small cone on top showing facing
+const coneGeo = new THREE.ConeGeometry(0.12, 0.25, 4);
+const coneMat = new THREE.MeshLambertMaterial({
+  color: TURTLE_ACCENT_COLOR,
+  emissive: TURTLE_ACCENT_COLOR,
+  emissiveIntensity: 0.4,
+});
+const cone = new THREE.Mesh(coneGeo, coneMat);
+cone.position.set(0, 0.65, 0.35);
+cone.rotation.x = Math.PI / 2;
+turtleGroup.add(cone);
+
+const ringGeo = new THREE.RingGeometry(0.3, 0.5, 24);
+const ringMat = new THREE.MeshBasicMaterial({
+  color: TURTLE_ACCENT_COLOR,
+  transparent: true,
+  opacity: 0.15,
+  side: THREE.DoubleSide,
+});
+const ring = new THREE.Mesh(ringGeo, ringMat);
+ring.rotation.x = -Math.PI / 2;
+ring.position.y = 0.02;
+turtleGroup.add(ring);
+
+// Facing direction vectors
+const FACING_VECTORS = {
+  0: { x: 0, z: -1 },   // north
+  1: { x: 1, z: 0 },    // east
+  2: { x: 0, z: 1 },    // south
+  3: { x: -1, z: 0 },   // west
+};
+
+function updateTurtle(pos) {
+  turtleGroup.position.set(pos.x, pos.y, pos.z);
+  // head faces +Z (south = facing 2).  Rotate Y for other directions.
+  // facing: 0=north(-Z), 1=east(+X), 2=south(+Z), 3=west(-X)
+  const angles = { 0: Math.PI, 1: -Math.PI / 2, 2: 0, 3: Math.PI / 2 };
+  turtleGroup.rotation.y = angles[pos.facing] || 0;
+}
+
+async function fetchPosition() {
+  try {
+    const resp = await fetch('/position');
+    if (!resp.ok) return;
+    updateTurtle(await resp.json());
+  } catch (_err) {}
+}
+
 function getBlockColor(name) {
   return BLOCK_COLORS[name] !== undefined ? BLOCK_COLORS[name] : DEFAULT_BLOCK_COLOR;
 }
@@ -121,7 +203,9 @@ function animate() {
 
 animate();
 fetchBlocks();
+fetchPosition();
 setInterval(fetchBlocks, 3000);
+setInterval(fetchPosition, 1500);
 
 const resizeObserver = new ResizeObserver(function () {
   const w = container.clientWidth;
