@@ -1,6 +1,8 @@
 import asyncio
 from aiohttp import web
-from TurtleManager import TurtleManager, Move, Detect
+from TurtleManager import TurtleManager, Move
+
+BLOCKS_FILE = "web/blocks.txt"
 
 
 def create_app(manager):
@@ -27,22 +29,41 @@ def create_app(manager):
     async def handle_detect(request):
         try:
             data = await request.json()
-            side = Detect[data["direction"].upper()]
-            result = await manager.execute(side.value)
-            block = result.get("result")
-            return web.json_response({
-                "block": block if block and block != "none" else None,
-            })
+            direction = data["direction"].upper()
+            block = await manager.inspect_block(direction)
+            return web.json_response({"block": block})
         except KeyError:
-            return web.json_response({"error": "Use: FRONT, UP, DOWN"}, status=400)
+            return web.json_response({"error": "Use: FORWARD, UP, DOWN"}, status=400)
         except asyncio.TimeoutError:
             return web.json_response({"error": "turtle did not respond"}, status=504)
+
+    async def handle_blocks(request):
+        blocks = []
+        try:
+            with open(BLOCKS_FILE) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split(",", 3)
+                    if len(parts) == 4:
+                        blocks.append({
+                            "x": int(parts[0]),
+                            "y": int(parts[1]),
+                            "z": int(parts[2]),
+                            "name": parts[3],
+                        })
+        except FileNotFoundError:
+            pass
+        return web.json_response({"blocks": blocks})
 
     app.router.add_get("/", handle_index)
     app.router.add_get("/move.js", lambda _: web.FileResponse("web/move.js"))  # pyright: ignore
     app.router.add_get("/detect.js", lambda _: web.FileResponse("web/detect.js"))  # pyright: ignore
+    app.router.add_get("/visualize.js", lambda _: web.FileResponse("web/visualize.js"))  # pyright: ignore
     app.router.add_post("/move", handle_move)
     app.router.add_post("/detect", handle_detect)
+    app.router.add_get("/blocks", handle_blocks)
     return app
 
 

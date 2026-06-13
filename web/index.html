@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Turtle Control</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -582,6 +590,51 @@
         }
       }
 
+      /* ---- 3D Viz Panel ---- */
+      .viz-panel {
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-subtle);
+      }
+
+      .viz-panel .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .viz-panel .panel-title {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-secondary);
+      }
+
+      .viz-container {
+        width: 100%;
+        height: 400px;
+        background: var(--bg-deep);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .viz-container canvas {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      @media (max-width: 640px) {
+        .viz-container {
+          height: 300px;
+        }
+      }
+
       @media (max-width: 420px) {
         .dpad-grid {
           grid-template-columns: repeat(3, 52px);
@@ -676,6 +729,14 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- 3D World -->
+      <div class="viz-panel">
+        <div class="panel-header">
+          <span class="panel-title">// 3D World</span>
+        </div>
+        <div class="viz-container" id="viz-container"></div>
       </div>
 
       <!-- Response Log -->
@@ -790,5 +851,6 @@
     </script>
     <script src="move.js"></script>
     <script src="detect.js"></script>
+    <script type="module" src="visualize.js"></script>
   </body>
 </html>
