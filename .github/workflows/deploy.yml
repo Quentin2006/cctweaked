@@ -18,6 +18,7 @@ jobs:
         run: |
           cd /app
           git pull
-          echo "OPENCODE_API_KEY=$OPENCODE_API_KEY" > /app/.env
+          KEY_TRIMMED=$(echo "$OPENCODE_API_KEY" | xargs)
+          echo "OPENCODE_API_KEY=$KEY_TRIMMED" > /app/.env
           docker compose down
           docker compose up -d --build
