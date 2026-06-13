@@ -40,7 +40,7 @@ def create_app(manager):
 
 
 async def handle_index(_):
-    return web.FileResponse("index.html")
+    return web.FileResponse("web/index.html")
 
 
 async def start_http(manager):
