@@ -60,6 +60,12 @@ class AISession:
             return
 
         opencode_home = os.path.join(DATA_DIR, "opencode")
+        # Use a per-session data directory to avoid SQLite lock contention
+        # between concurrent opencode instances sharing the default DB.
+        session_data_dir = os.path.join(
+            DATA_DIR, "opencode", "sessions", self.id
+        )
+        os.makedirs(session_data_dir, exist_ok=True)
         self.proc = await asyncio.create_subprocess_exec(
             "opencode", "run",
             f"goal: {self.goal}",
@@ -74,6 +80,7 @@ class AISession:
             env={
                 **os.environ,
                 "OPENCODE_HOME": opencode_home,
+                "XDG_DATA_HOME": session_data_dir,
             },
         )
 
