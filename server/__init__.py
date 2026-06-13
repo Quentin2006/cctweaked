@@ -29,13 +29,13 @@ def create_app(manager, ai_manager=None):
 
     # Static file handlers (closures avoid asyncio.run in async context)
     static_routes = [
-        ("/move.js", "web/js/move.js"),
-        ("/detect.js", "web/js/detect.js"),
-        ("/action.js", "web/js/action.js"),
-        ("/visualize.js", "web/js/visualize.js"),
-        ("/inventory.js", "web/js/inventory.js"),
-        ("/ai.js", "web/js/ai.js"),
-        ("/turtles.js", "web/js/turtles.js"),
+        ("/js/move.js", "web/js/move.js"),
+        ("/js/detect.js", "web/js/detect.js"),
+        ("/js/action.js", "web/js/action.js"),
+        ("/js/visualize.js", "web/js/visualize.js"),
+        ("/js/inventory.js", "web/js/inventory.js"),
+        ("/js/ai.js", "web/js/ai.js"),
+        ("/js/turtles.js", "web/js/turtles.js"),
     ]
     for route, fpath in static_routes:
         async def handler(_, _fpath=fpath):

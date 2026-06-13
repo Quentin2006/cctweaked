@@ -16,7 +16,7 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: |
-          cd /app
+          cd /mnt/Safe/data/cctweaked
           git pull
           KEY_TRIMMED=$(echo "$OPENCODE_API_KEY" | xargs)
           echo "OPENCODE_API_KEY=$KEY_TRIMMED" > /app/.env
