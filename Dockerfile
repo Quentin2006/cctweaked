@@ -12,9 +12,11 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY *.py /app/
-COPY *.skill.md /app/
+COPY server.py /app/
+COPY server/ /app/server/
+COPY skills/ /app/skills/
 COPY web/ /app/web/
+COPY lua/ /app/lua/
 COPY data.defaults/ /app/data.defaults/
 
 EXPOSE 3000 3001
