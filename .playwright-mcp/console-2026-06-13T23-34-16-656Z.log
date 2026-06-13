@@ -1,0 +1,3 @@
+[    5321ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   10325ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   15330ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0

@@ -223,4 +223,3 @@ async function fetchInventory() {
 
 fetchInventory();
 setInterval(fetchInventory, 2000);
-setInterval(fetchInventory, 2000);
