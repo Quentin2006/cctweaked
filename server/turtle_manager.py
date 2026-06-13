@@ -22,7 +22,8 @@ class TurtleConnection:
         self.facing = 0
         self.selected_slot = 1
         self.last_active = time.time()
-        self._recv_lock = asyncio.Lock()
+        self._message_queue = asyncio.Queue()
+        self._recv_task = None
 
     async def send(self, message):
         if self.ws and self.connected:
@@ -32,13 +33,21 @@ class TurtleConnection:
                 self.connected = False
 
     async def recv(self):
-        if self.ws and self.connected:
-            try:
-                async with self._recv_lock:
-                    return await self.ws.recv()
-            except websockets.exceptions.ConnectionClosed:
-                self.connected = False
-        return None
+        try:
+            return await asyncio.wait_for(self._message_queue.get(), timeout=5.0)
+        except asyncio.TimeoutError:
+            return None
+
+    async def _start_recv(self):
+        """Background task that reads from websocket and puts messages in queue."""
+        try:
+            while True:
+                msg = await self.ws.recv()
+                await self._message_queue.put(msg)
+        except websockets.exceptions.ConnectionClosed:
+            pass
+        finally:
+            self.connected = False
 
 
 class TurtleManager:
