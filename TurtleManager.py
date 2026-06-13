@@ -20,12 +20,12 @@ class TurtleManager:
         self.connected = asyncio.Event()
 
     async def start(self):
-        async with websockets.serve(
+        self._server = await websockets.serve(
             self.handle,
             self.host,
             self.port,
-        ):
-            await self.connected.wait()
+        )
+        await self.connected.wait()
 
     async def move(self, move: Move, distance: int):
         if distance < 0:
