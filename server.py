@@ -1,6 +1,6 @@
 import asyncio
 from aiohttp import web
-from TurtleManager import TurtleManager, Move
+from TurtleManager import TurtleManager, Move, Detect
 
 
 def create_app(manager):
@@ -24,8 +24,18 @@ def create_app(manager):
                 status=400,
             )
 
+    async def handle_detect(request):
+        try:
+            data = await request.json()
+            side = Detect[data["side"].upper()]
+            is_block_ahead = manager.detect(side)
+            return web.json_response(is_block_ahead)
+        except KeyError:
+            return web.json_response({"error": "Use: FRONT, UP, DOWN"}, status=400)
+
     app.router.add_get("/", handle_index)
     app.router.add_post("/move", handle_move)
+    app.router.add_get("/detect", handle_detect)
     return app
 
 

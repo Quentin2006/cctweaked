@@ -12,6 +12,12 @@ class Move(Enum):
     DOWN = "turtle.down()"
 
 
+class Detect(Enum):
+    FORWARD = "turtle.detect()"
+    UP = "turtle.detectUp()"
+    DOWN = "turtle.detectDown()"
+
+
 class TurtleManager:
     def __init__(self, host="0.0.0.0", port=3000):
         self.ws = None
@@ -37,6 +43,9 @@ class TurtleManager:
             raise ValueError("Distance must be non-negative")
         for _ in range(distance):
             self.commands.append(move.value)
+
+    def detect(self, side: Detect):
+        return self.commands.append(side.value)
 
     async def handle(self, ws):
         self.ws = ws
