@@ -75,8 +75,8 @@ class AISession:
             "--pure",
             "--file", SKILL_FILE,
             stdout=asyncio.subprocess.PIPE,
-            stdin=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.STDOUT,
+            stdin=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.PIPE,
             env={
                 **os.environ,
                 "OPENCODE_HOME": opencode_home,
