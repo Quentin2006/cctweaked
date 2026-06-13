@@ -1,6 +1,7 @@
 import asyncio
 import json
 import uuid
+import time
 import websockets
 from enum import Enum
 
@@ -89,22 +90,54 @@ class CraftOp(Enum):
     CRAFT = "local ok = turtle.craft({limit}); return tostring(ok)"
 
 
-class TurtleManager:
-    def __init__(self, host="0.0.0.0", port=3000, blocks_file="web/blocks.txt"):
-        self.ws = None
-        self.host = host
-        self.port = port
-        self.blocks_file = blocks_file
-        self.commands: list[tuple[Move, str]] = []
-        self.connected = asyncio.Event()
-        self._pending: dict[str, asyncio.Future] = {}
-
-        self._ai_locked = False
+class TurtleConnection:
+    def __init__(self, turtle_id: str, ws):
+        self.id = turtle_id
+        self.ws = ws
+        self.connected = True
         self.x = 0
         self.y = 0
         self.z = 0
         # facing: 0=north(-Z), 1=east(+X), 2=south(+Z), 3=west(-X)
         self.facing = 0
+        self._pending: dict[str, asyncio.Future] = {}
+        self.commands: list[tuple[Move, str]] = []
+        self.last_seen = time.time()
+        self.status = "idle"
+
+
+class TurtleManager:
+    def __init__(self, host="0.0.0.0", port=3000, blocks_file="web/blocks.txt"):
+        self.host = host
+        self.port = port
+        self.blocks_file = blocks_file
+        self._turtles: dict[str, TurtleConnection] = {}
+        self._default_turtle_id: str | None = None
+        self._lock = asyncio.Lock()
+        self._ai_locked = False
+
+        # Commands queued before any turtle connects (e.g. startup move())
+        self._pending_unassigned_commands: list[tuple[Move, str]] = []
+
+    @property
+    def x(self) -> int:
+        t = self._get_default_turtle()
+        return t.x if t else 0
+
+    @property
+    def y(self) -> int:
+        t = self._get_default_turtle()
+        return t.y if t else 0
+
+    @property
+    def z(self) -> int:
+        t = self._get_default_turtle()
+        return t.z if t else 0
+
+    @property
+    def facing(self) -> int:
+        t = self._get_default_turtle()
+        return t.facing if t else 0
 
     @property
     def ai_active(self):
@@ -116,43 +149,75 @@ class TurtleManager:
     def unlock_ai(self):
         self._ai_locked = False
 
-    def _facing_vector(self) -> tuple[int, int]:
-        if self.facing == 0:
-            return (0, -1)   # north
-        elif self.facing == 1:
-            return (1, 0)    # east
-        elif self.facing == 2:
-            return (0, 1)    # south
+    @property
+    def turtle_count(self) -> int:
+        return len(self._turtles)
+
+    def list_turtles(self) -> list[dict]:
+        return [{
+            "id": tid,
+            "x": t.x, "y": t.y, "z": t.z,
+            "facing": t.facing,
+            "status": t.status,
+            "connected": t.connected,
+        } for tid, t in self._turtles.items()]
+
+    def _get_default_turtle(self) -> TurtleConnection | None:
+        if self._default_turtle_id and self._default_turtle_id in self._turtles:
+            return self._turtles[self._default_turtle_id]
+        for t in self._turtles.values():
+            return t
+        return None
+
+    def get_turtle(self, turtle_id: str | None = None) -> TurtleConnection:
+        if turtle_id is not None:
+            turtle = self._turtles.get(turtle_id)
+            if turtle is None:
+                raise ConnectionError(f"Turtle '{turtle_id}' not found")
+            return turtle
+        turtle = self._get_default_turtle()
+        if turtle is None:
+            raise ConnectionError("No turtle connected")
+        return turtle
+
+    def _facing_vector(self, turtle: TurtleConnection) -> tuple[int, int]:
+        if turtle.facing == 0:
+            return (0, -1)
+        elif turtle.facing == 1:
+            return (1, 0)
+        elif turtle.facing == 2:
+            return (0, 1)
         else:
-            return (-1, 0)   # west
+            return (-1, 0)
 
-    def _update_position(self, move: Move) -> None:
+    def _update_position(self, turtle: TurtleConnection, move: Move) -> None:
         if move == Move.FORWARD:
-            dx, dz = self._facing_vector()
-            self.x += dx
-            self.z += dz
+            dx, dz = self._facing_vector(turtle)
+            turtle.x += dx
+            turtle.z += dz
         elif move == Move.BACK:
-            dx, dz = self._facing_vector()
-            self.x -= dx
-            self.z -= dz
+            dx, dz = self._facing_vector(turtle)
+            turtle.x -= dx
+            turtle.z -= dz
         elif move == Move.UP:
-            self.y += 1
+            turtle.y += 1
         elif move == Move.DOWN:
-            self.y -= 1
+            turtle.y -= 1
         elif move == Move.LEFT:
-            self.facing = (self.facing - 1) % 4
+            turtle.facing = (turtle.facing - 1) % 4
         elif move == Move.RIGHT:
-            self.facing = (self.facing + 1) % 4
+            turtle.facing = (turtle.facing + 1) % 4
 
-    def _get_block_pos(self, direction: str) -> tuple[int, int, int]:
+    def _get_block_pos(self, turtle: TurtleConnection,
+                       direction: str) -> tuple[int, int, int]:
         d = direction.upper()
         if d == "UP":
-            return (self.x, self.y + 1, self.z)
+            return (turtle.x, turtle.y + 1, turtle.z)
         elif d == "DOWN":
-            return (self.x, self.y - 1, self.z)
+            return (turtle.x, turtle.y - 1, turtle.z)
         elif d in ("FORWARD", "FRONT"):
-            dx, dz = self._facing_vector()
-            return (self.x + dx, self.y, self.z + dz)
+            dx, dz = self._facing_vector(turtle)
+            return (turtle.x + dx, turtle.y, turtle.z + dz)
         else:
             raise ValueError(f"Invalid direction: {direction}")
 
@@ -187,51 +252,141 @@ class TurtleManager:
         with open(self.blocks_file, "w") as f:
             f.write("\n".join(lines) + "\n")
 
-    async def _dispatch_loop(self):
+    def _remove_block(self, pos: tuple[int, int, int]) -> None:
+        x, y, z = pos
+        lines: list[str] = []
+        try:
+            with open(self.blocks_file) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split(",", 3)
+                    if (len(parts) == 4 and int(parts[0]) == x
+                            and int(parts[1]) == y and int(parts[2]) == z):
+                        continue
+                    lines.append(line)
+        except FileNotFoundError:
+            return
+        with open(self.blocks_file, "w") as f:
+            f.write("\n".join(lines) + "\n" if lines else "")
+
+    async def _dispatch_loop(self, turtle: TurtleConnection):
         while True:
-            if self.commands and self.ws is not None:
-                move, code = self.commands.pop(0)
-                await self.ws.send(json.dumps({"code": code}))
-                self._update_position(move)
+            if turtle.connected and turtle.commands and turtle.ws is not None:
+                move, code = turtle.commands.pop(0)
+                try:
+                    await turtle.ws.send(json.dumps({"code": code}))
+                except Exception:
+                    turtle.connected = False
+                    turtle.status = "offline"
+                    break
+                self._update_position(turtle, move)
             await asyncio.sleep(0.5)
+
+    def _flush_pending_to(self, turtle: TurtleConnection) -> None:
+        if self._pending_unassigned_commands:
+            turtle.commands.extend(self._pending_unassigned_commands)
+            self._pending_unassigned_commands.clear()
 
     async def start(self):
         async with websockets.serve(self.handle, self.host, self.port) as server:
-            await self.connected.wait()
-            asyncio.create_task(self._dispatch_loop())
+            print(f"WebSocket server started on ws://{self.host}:{self.port}")
             await server.serve_forever()
 
-    def move(self, move: Move, distance: int):
+    async def handle(self, ws):
+        turtle_id = str(uuid.uuid4())[:8]
+        turtle = TurtleConnection(turtle_id, ws)
+
+        async with self._lock:
+            self._turtles[turtle_id] = turtle
+            if self._default_turtle_id is None:
+                self._default_turtle_id = turtle_id
+                self._flush_pending_to(turtle)
+
+        print(f"Turtle '{turtle_id}' connected ({len(self._turtles)} total)")
+
+        dispatch_task = asyncio.create_task(self._dispatch_loop(turtle))
+
+        try:
+            async for msg in ws:
+                try:
+                    data = json.loads(msg)
+                    req_id = data.get("id")
+                    if req_id and req_id in turtle._pending:
+                        future = turtle._pending.pop(req_id)
+                        future.set_result(data)
+                    else:
+                        print(f"Turtle '{turtle_id}': {data}")
+                except json.JSONDecodeError:
+                    print(f"Turtle '{turtle_id}' message: {msg}")
+        finally:
+            turtle.connected = False
+            turtle.status = "offline"
+            dispatch_task.cancel()
+            try:
+                await dispatch_task
+            except asyncio.CancelledError:
+                pass
+
+            async with self._lock:
+                self._turtles.pop(turtle_id, None)
+                if self._default_turtle_id == turtle_id:
+                    self._default_turtle_id = (
+                        next(iter(self._turtles)) if self._turtles else None
+                    )
+
+            print(f"Turtle '{turtle_id}' disconnected "
+                  f"({len(self._turtles)} remaining)")
+
+    def move(self, move: Move, distance: int,
+             turtle_id: str | None = None):
         if distance < 0:
             raise ValueError("Distance must be non-negative")
-        for _ in range(distance):
-            self.commands.append((move, move.value))
 
-    async def execute(self, code: str, timeout: float = 30.0):
-        if self.ws is None:
+        commands = [(move, move.value) for _ in range(distance)]
+
+        if turtle_id is not None:
+            turtle = self.get_turtle(turtle_id)
+            turtle.commands.extend(commands)
+        else:
+            turtle = self._get_default_turtle()
+            if turtle is not None:
+                turtle.commands.extend(commands)
+            else:
+                self._pending_unassigned_commands.extend(commands)
+
+    async def execute(self, code: str, timeout: float = 30.0,
+                      turtle_id: str | None = None):
+        turtle = self.get_turtle(turtle_id)
+        if turtle.ws is None:
             raise ConnectionError("Turtle not connected")
         req_id = str(uuid.uuid4())
         loop = asyncio.get_running_loop()
         future = loop.create_future()
-        self._pending[req_id] = future
-        await self.ws.send(json.dumps({"id": req_id, "code": code}))
+        turtle._pending[req_id] = future
+        await turtle.ws.send(json.dumps({"id": req_id, "code": code}))
         try:
             return await asyncio.wait_for(future, timeout)
         except asyncio.TimeoutError:
-            self._pending.pop(req_id, None)
+            turtle._pending.pop(req_id, None)
             raise
 
-    async def inspect_block(self, direction: str) -> str | None:
+    async def inspect_block(self, direction: str,
+                            turtle_id: str | None = None) -> str | None:
+        turtle = self.get_turtle(turtle_id)
         side = Inspect[direction.upper()]
-        result = await self.execute(side.value)
+        result = await self.execute(side.value, turtle_id=turtle_id)
         block = result.get("result")
         if block and block != "none":
-            pos = self._get_block_pos(direction)
+            pos = self._get_block_pos(turtle, direction)
             self._save_block(pos, block)
             return block
         return None
 
-    async def dig(self, direction: str) -> bool:
+    async def dig(self, direction: str,
+                  turtle_id: str | None = None) -> bool:
+        turtle = self.get_turtle(turtle_id)
         d = direction.upper()
         if d == "UP":
             code = Action.DIG_UP.value
@@ -239,15 +394,17 @@ class TurtleManager:
             code = Action.DIG_DOWN.value
         else:
             code = Action.DIG.value
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         ok = result.get("result") == "true"
         if ok:
-            pos = self._get_block_pos(direction)
+            pos = self._get_block_pos(turtle, direction)
             self._remove_block(pos)
         return ok
 
     async def place(self, direction: str, block: str | None = None,
-                    text: str | None = None) -> bool:
+                    text: str | None = None,
+                    turtle_id: str | None = None) -> bool:
+        turtle = self.get_turtle(turtle_id)
         fmt = {}
         if text:
             escaped = text.replace("\\", "\\\\").replace('"', '\\"')
@@ -261,14 +418,16 @@ class TurtleManager:
             code = Action.PLACE_DOWN.value.format(**fmt)
         else:
             code = Action.PLACE.value.format(**fmt)
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         ok = result.get("result") == "true"
         if ok and block:
-            pos = self._get_block_pos(direction)
+            pos = self._get_block_pos(turtle, direction)
             self._save_block(pos, block)
         return ok
 
-    async def attack(self, direction: str) -> bool:
+    async def attack(self, direction: str,
+                     turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         d = direction.upper()
         if d == "UP":
             code = Action.ATTACK_UP.value
@@ -276,29 +435,12 @@ class TurtleManager:
             code = Action.ATTACK_DOWN.value
         else:
             code = Action.ATTACK.value
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    def _remove_block(self, pos: tuple[int, int, int]) -> None:
-        x, y, z = pos
-        lines: list[str] = []
-        try:
-            with open(self.blocks_file) as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    parts = line.split(",", 3)
-                    if (len(parts) == 4 and int(parts[0]) == x
-                            and int(parts[1]) == y and int(parts[2]) == z):
-                        continue  # skip this line = remove
-                    lines.append(line)
-        except FileNotFoundError:
-            return
-        with open(self.blocks_file, "w") as f:
-            f.write("\n".join(lines) + "\n" if lines else "")
-
-    async def detect_block(self, direction: str) -> bool:
+    async def detect_block(self, direction: str,
+                           turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         d = direction.upper()
         if d == "UP":
             code = Sense.DETECT_UP.value
@@ -306,10 +448,12 @@ class TurtleManager:
             code = Sense.DETECT_DOWN.value
         else:
             code = Sense.DETECT.value
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    async def compare_block(self, direction: str) -> bool:
+    async def compare_block(self, direction: str,
+                            turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         d = direction.upper()
         if d == "UP":
             code = Sense.COMPARE_UP.value
@@ -317,28 +461,34 @@ class TurtleManager:
             code = Sense.COMPARE_DOWN.value
         else:
             code = Sense.COMPARE.value
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    async def compare_to(self, slot: int) -> bool:
+    async def compare_to(self, slot: int,
+                         turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         code = Sense.COMPARE_TO.value.format(slot=slot)
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    async def get_item_count(self, slot: int | None = None) -> int:
+    async def get_item_count(self, slot: int | None = None,
+                             turtle_id: str | None = None) -> int:
+        self.get_turtle(turtle_id)
         code = InventoryOp.ITEM_COUNT.value.format(
             slot=slot if slot is not None else "")
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         raw = result.get("result", "0")
         try:
             return int(raw)
         except (ValueError, TypeError):
             return 0
 
-    async def get_item_space(self, slot: int | None = None) -> int:
+    async def get_item_space(self, slot: int | None = None,
+                             turtle_id: str | None = None) -> int:
+        self.get_turtle(turtle_id)
         code = InventoryOp.ITEM_SPACE.value.format(
             slot=slot if slot is not None else "")
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         raw = result.get("result", "0")
         try:
             return int(raw)
@@ -346,10 +496,12 @@ class TurtleManager:
             return 0
 
     async def get_item_detail(self, slot: int | None = None,
-                              detailed: bool = False) -> dict | None:
-        op = InventoryOp.ITEM_DETAIL  # TODO: support detailed
+                              detailed: bool = False,
+                              turtle_id: str | None = None) -> dict | None:
+        self.get_turtle(turtle_id)
+        op = InventoryOp.ITEM_DETAIL
         code = op.value.format(slot=slot if slot is not None else "")
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         raw = result.get("result")
         if raw == "null" or raw is None:
             return None
@@ -358,29 +510,38 @@ class TurtleManager:
         except (json.JSONDecodeError, TypeError):
             return None
 
-    async def get_selected_slot(self) -> int:
-        result = await self.execute(InventoryOp.SELECTED_SLOT.value)
+    async def get_selected_slot(self,
+                                turtle_id: str | None = None) -> int:
+        self.get_turtle(turtle_id)
+        result = await self.execute(InventoryOp.SELECTED_SLOT.value,
+                                    turtle_id=turtle_id)
         raw = result.get("result", "1")
         try:
             return int(raw)
         except (ValueError, TypeError):
             return 1
 
-    async def select_slot(self, slot: int) -> bool:
+    async def select_slot(self, slot: int,
+                          turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         code = InventoryOp.SELECT.value.format(slot=slot)
-        await self.execute(code)
+        await self.execute(code, turtle_id=turtle_id)
         return True
 
     async def transfer_to(self, slot: int,
-                          count: int | None = None) -> bool:
+                          count: int | None = None,
+                          turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         count_str = f", {count}" if count is not None else ""
         code = InventoryOp.TRANSFER_TO.value.format(
             target=slot, count=count_str)
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
     async def drop(self, direction: str,
-                   count: int | None = None) -> bool:
+                   count: int | None = None,
+                   turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         d = direction.upper()
         count_str = count if count is not None else ""
         if d == "UP":
@@ -389,11 +550,13 @@ class TurtleManager:
             code = DropOp.DROP_DOWN.value.format(count=count_str)
         else:
             code = DropOp.DROP.value.format(count=count_str)
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
     async def suck(self, direction: str,
-                   count: int | None = None) -> bool:
+                   count: int | None = None,
+                   turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         d = direction.upper()
         count_str = count if count is not None else ""
         if d == "UP":
@@ -402,11 +565,14 @@ class TurtleManager:
             code = SuckOp.SUCK_DOWN.value.format(count=count_str)
         else:
             code = SuckOp.SUCK.value.format(count=count_str)
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    async def get_fuel_level(self) -> int | str:
-        result = await self.execute(FuelOp.LEVEL.value)
+    async def get_fuel_level(self,
+                             turtle_id: str | None = None) -> int | str:
+        self.get_turtle(turtle_id)
+        result = await self.execute(FuelOp.LEVEL.value,
+                                    turtle_id=turtle_id)
         raw = result.get("result", "0")
         if raw == "unlimited":
             return raw
@@ -415,8 +581,11 @@ class TurtleManager:
         except (ValueError, TypeError):
             return 0
 
-    async def get_fuel_limit(self) -> int | str:
-        result = await self.execute(FuelOp.LIMIT.value)
+    async def get_fuel_limit(self,
+                             turtle_id: str | None = None) -> int | str:
+        self.get_turtle(turtle_id)
+        result = await self.execute(FuelOp.LIMIT.value,
+                                    turtle_id=turtle_id)
         raw = result.get("result", "0")
         if raw == "unlimited":
             return raw
@@ -425,22 +594,31 @@ class TurtleManager:
         except (ValueError, TypeError):
             return 0
 
-    async def refuel(self, count: int | None = None) -> bool:
+    async def refuel(self, count: int | None = None,
+                     turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         count_str = count if count is not None else ""
         code = FuelOp.REFUEL.value.format(count=count_str)
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    async def equip_left(self) -> bool:
-        result = await self.execute(EquipmentOp.EQUIP_LEFT.value)
+    async def equip_left(self, turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
+        result = await self.execute(EquipmentOp.EQUIP_LEFT.value,
+                                    turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    async def equip_right(self) -> bool:
-        result = await self.execute(EquipmentOp.EQUIP_RIGHT.value)
+    async def equip_right(self, turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
+        result = await self.execute(EquipmentOp.EQUIP_RIGHT.value,
+                                    turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    async def get_equipped_left(self) -> dict | None:
-        result = await self.execute(EquipmentOp.GET_LEFT.value)
+    async def get_equipped_left(self,
+                                turtle_id: str | None = None) -> dict | None:
+        self.get_turtle(turtle_id)
+        result = await self.execute(EquipmentOp.GET_LEFT.value,
+                                    turtle_id=turtle_id)
         raw = result.get("result")
         if raw == "null" or raw is None:
             return None
@@ -449,8 +627,11 @@ class TurtleManager:
         except (json.JSONDecodeError, TypeError):
             return None
 
-    async def get_equipped_right(self) -> dict | None:
-        result = await self.execute(EquipmentOp.GET_RIGHT.value)
+    async def get_equipped_right(self,
+                                 turtle_id: str | None = None) -> dict | None:
+        self.get_turtle(turtle_id)
+        result = await self.execute(EquipmentOp.GET_RIGHT.value,
+                                    turtle_id=turtle_id)
         raw = result.get("result")
         if raw == "null" or raw is None:
             return None
@@ -459,40 +640,25 @@ class TurtleManager:
         except (json.JSONDecodeError, TypeError):
             return None
 
-    async def craft(self, limit: int = 64) -> bool:
+    async def craft(self, limit: int = 64,
+                    turtle_id: str | None = None) -> bool:
+        self.get_turtle(turtle_id)
         code = CraftOp.CRAFT.value.format(limit=limit)
-        result = await self.execute(code)
+        result = await self.execute(code, turtle_id=turtle_id)
         return result.get("result") == "true"
 
-    async def get_inventory_state(self) -> dict:
-        slots = []
+    async def get_inventory_state(self,
+                                  turtle_id: str | None = None) -> dict:
+        self.get_turtle(turtle_id)
+        slots: list = []
         for slot in range(1, 17):
-            detail = await self.get_item_detail(slot)
+            detail = await self.get_item_detail(slot, turtle_id=turtle_id)
             slots.append(detail)
-        selected = await self.get_selected_slot()
-        fuel_level = await self.get_fuel_level()
-        fuel_limit = await self.get_fuel_limit()
+        selected = await self.get_selected_slot(turtle_id=turtle_id)
+        fuel_level = await self.get_fuel_level(turtle_id=turtle_id)
+        fuel_limit = await self.get_fuel_limit(turtle_id=turtle_id)
         return {
             "selected_slot": selected,
             "slots": slots,
             "fuel": {"level": fuel_level, "limit": fuel_limit},
         }
-
-    async def handle(self, ws):
-        self.ws = ws
-        self.connected.set()
-        try:
-            async for msg in ws:
-                try:
-                    data = json.loads(msg)
-                    req_id = data.get("id")
-                    if req_id and req_id in self._pending:
-                        future = self._pending.pop(req_id)
-                        future.set_result(data)
-                    else:
-                        print(f"Response: {data}")
-                except json.JSONDecodeError:
-                    print(f"Message: {msg}")
-        finally:
-            self.ws = None
-            print("Turtle disconnected")

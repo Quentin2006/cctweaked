@@ -7,11 +7,15 @@ from aiohttp import web
 from TurtleManager import TurtleManager, Move
 from bootstrap import bootstrap
 from ai_agent import AISessionManager
+from task_manager import TaskManager
+from agent_registry import get_agent_type, list_agent_types
 
 logger = logging.getLogger(__name__)
 
 DATA_DIR = os.getenv("DATA_DIR", "data")
 BLOCKS_FILE = os.getenv("BLOCKS_FILE", os.path.join(DATA_DIR, "blocks.txt"))
+
+task_manager = TaskManager()
 
 
 async def handle_index(_):
@@ -253,6 +257,130 @@ def create_app(manager, ai_manager=None):
                 {"error": "Missing 'session_id'"}, status=400
             )
 
+    # ---- Task Manager routes ------------------------------------------------
+
+    async def handle_tasks_list(request):
+        status = request.query.get("status")
+        task_type = request.query.get("type")
+        tasks = task_manager.list_tasks(status, task_type)
+        return web.json_response({"tasks": tasks})
+
+    async def handle_tasks_create(request):
+        try:
+            data = await request.json()
+            task = task_manager.create_task(
+                task_type=data["type"],
+                goal=data["goal"],
+                priority=data.get("priority", 5),
+                depends_on=data.get("depends_on", []),
+                params=data.get("params", {}),
+            )
+            return web.json_response({"task": task})
+        except KeyError:
+            return web.json_response(
+                {"error": "Use: type, goal"}, status=400
+            )
+
+    async def handle_tasks_claim(request):
+        try:
+            data = await request.json()
+            task = task_manager.claim_task(
+                agent_id=data["agent_id"],
+                task_types=data.get("task_types"),
+            )
+            return web.json_response({"task": task})
+        except KeyError:
+            return web.json_response(
+                {"error": "Use: agent_id"}, status=400
+            )
+
+    async def handle_tasks_complete(request):
+        try:
+            data = await request.json()
+            ok = task_manager.complete_task(
+                task_id=data["task_id"],
+                agent_id=data["agent_id"],
+                result=data.get("result"),
+            )
+            return web.json_response({"ok": ok})
+        except KeyError:
+            return web.json_response(
+                {"error": "Use: task_id, agent_id"}, status=400
+            )
+
+    async def handle_tasks_fail(request):
+        try:
+            data = await request.json()
+            ok = task_manager.fail_task(
+                task_id=data["task_id"],
+                agent_id=data["agent_id"],
+                error=data["error"],
+            )
+            return web.json_response({"ok": ok})
+        except KeyError:
+            return web.json_response(
+                {"error": "Use: task_id, agent_id, error"}, status=400
+            )
+
+    async def handle_tasks_stats(request):
+        stats = task_manager.get_stats()
+        return web.json_response({"stats": stats})
+
+    # ---- New AI Session routes ----------------------------------------------
+
+    async def handle_sessions_create(request):
+        try:
+            data = await request.json()
+            goal = data["goal"]
+        except KeyError:
+            return web.json_response(
+                {"error": "Use: goal"}, status=400
+            )
+        try:
+            session = ai_manager.create(goal)
+        except RuntimeError as e:
+            return web.json_response(
+                {"error": str(e)}, status=503
+            )
+        asyncio.create_task(session.start())
+        return web.json_response({"session_id": session.id, "status": "running"})
+
+    async def handle_sessions_list(request):
+        status = request.query.get("status")
+        sessions = ai_manager.list_sessions(status)
+        return web.json_response({"sessions": sessions})
+
+    async def handle_sessions_answer(request):
+        try:
+            data = await request.json()
+            answer = data["answer"]
+            session_id = request.match_info["session_id"]
+            session = ai_manager._sessions[session_id]
+            await session.answer_question(answer)
+            return web.json_response({"ok": True})
+        except KeyError:
+            return web.json_response(
+                {"error": "Session not found"}, status=404
+            )
+
+    async def handle_sessions_cancel(request):
+        session_id = request.match_info["session_id"]
+        ai_manager.cancel(session_id)
+        return web.json_response({"ok": True})
+
+    async def handle_sessions_stats(request):
+        stats = ai_manager.get_stats()
+        return web.json_response({"stats": stats})
+
+    # ---- Turtle routes ------------------------------------------------------
+
+    async def handle_turtles_list(request):
+        turtles = manager.list_turtles()
+        return web.json_response({
+            "turtles": turtles,
+            "count": manager.turtle_count,
+        })
+
     # Static file handlers (replacing lambdas)
     async def handle_move_js(_):
         return web.FileResponse("web/move.js")
@@ -291,6 +419,21 @@ def create_app(manager, ai_manager=None):
     app.router.add_get("/api/ai/stream/{id}", handle_ai_stream)
     app.router.add_post("/api/ai/answer", handle_ai_answer)
     app.router.add_post("/api/ai/cancel", handle_ai_cancel)
+    # Task routes
+    app.router.add_get("/api/tasks", handle_tasks_list)
+    app.router.add_post("/api/tasks/create", handle_tasks_create)
+    app.router.add_post("/api/tasks/claim", handle_tasks_claim)
+    app.router.add_post("/api/tasks/complete", handle_tasks_complete)
+    app.router.add_post("/api/tasks/fail", handle_tasks_fail)
+    app.router.add_get("/api/tasks/stats", handle_tasks_stats)
+    # AI session routes
+    app.router.add_post("/api/sessions/create", handle_sessions_create)
+    app.router.add_get("/api/sessions", handle_sessions_list)
+    app.router.add_post("/api/sessions/{session_id}/answer", handle_sessions_answer)
+    app.router.add_post("/api/sessions/{session_id}/cancel", handle_sessions_cancel)
+    app.router.add_get("/api/sessions/stats", handle_sessions_stats)
+    # Turtle routes
+    app.router.add_get("/api/turtles", handle_turtles_list)
 
     return app, ai_manager
 

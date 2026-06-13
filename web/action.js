@@ -19,6 +19,8 @@ document.querySelectorAll(".action-btn").forEach(function (btn) {
     var type = btn.getAttribute("data-action");
     var direction = getActiveDirection();
     var body = { type: type, direction: direction };
+    var turtleId = typeof getSelectedTurtleId !== 'undefined' ? getSelectedTurtleId() : null;
+    if (turtleId) body.turtle_id = turtleId;
 
     if (type === "place") {
       var selectedSlot = document.querySelector(".slot.slot-selected");

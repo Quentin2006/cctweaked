@@ -378,6 +378,141 @@
       }
 
       /* ===============================
+         Turtle Selector
+         =============================== */
+      .card-turtle-selector {
+        animation-delay: 0.05s;
+      }
+
+      .turtle-selector-panel {
+        width: 100%;
+      }
+
+      .turtle-selector-panel .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+
+      .turtle-selector-panel .panel-title {
+        font-family: var(--font-display);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-secondary);
+      }
+
+      .turtle-select-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .turtle-select {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 10px 14px;
+        font-family: var(--font-body);
+        font-size: 0.8rem;
+        color: var(--text-primary);
+        outline: none;
+        cursor: pointer;
+        transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238899b4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 40px;
+        min-height: 44px;
+      }
+
+      .turtle-select:hover {
+        border-color: rgba(0, 229, 255, 0.2);
+      }
+
+      .turtle-select:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+      }
+
+      .turtle-select option {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        padding: 8px;
+      }
+
+      .turtle-status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+        background: var(--text-dim);
+        transition: background var(--transition-smooth), box-shadow var(--transition-smooth);
+      }
+
+      .turtle-status-dot.connected {
+        background: var(--accent-success);
+        box-shadow: 0 0 6px rgba(46, 213, 115, 0.5);
+      }
+
+      .turtle-status-dot.busy {
+        background: var(--accent-warning);
+        box-shadow: 0 0 6px rgba(255, 179, 71, 0.5);
+      }
+
+      .turtle-status-dot.offline {
+        background: var(--accent-danger);
+        box-shadow: 0 0 6px rgba(255, 51, 85, 0.5);
+      }
+
+      .turtle-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .turtle-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 8px 12px;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--glass-border);
+      }
+
+      .turtle-info-label {
+        font-size: 0.52rem;
+        font-family: var(--font-display);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dim);
+      }
+
+      .turtle-info-value {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .turtle-info-value.waiting {
+        color: var(--text-dim);
+        font-style: italic;
+      }
+
+      .turtle-hidden {
+        display: none;
+      }
+
+      /* ===============================
          Control Panel Layout
          =============================== */
       .control-panel {
@@ -1833,6 +1968,10 @@
         .card {
           padding: 16px;
         }
+
+        .turtle-info-grid {
+          grid-template-columns: 1fr;
+        }
       }
 
       /* Mobile */
@@ -2043,6 +2182,7 @@
         }
       }
     </style>
+    <script src="turtles.js" defer></script>
   </head>
   <body>
     <div class="app">
@@ -2063,6 +2203,39 @@
             </div>
           </div>
         </header>
+
+        <!-- Turtle Selector -->
+        <div class="card card-turtle-selector" style="margin-bottom: var(--space-5);">
+          <div class="turtle-selector-panel">
+            <div class="panel-header">
+              <span class="panel-title">// Turtle</span>
+            </div>
+            <div class="turtle-select-row">
+              <select class="turtle-select" id="turtle-select">
+                <option value="">Waiting for turtle...</option>
+              </select>
+              <span class="turtle-status-dot offline" id="turtle-status-dot"></span>
+            </div>
+            <div class="turtle-info-grid turtle-hidden" id="turtle-info-grid">
+              <div class="turtle-info-item">
+                <span class="turtle-info-label">Position</span>
+                <span class="turtle-info-value" id="turtle-position">--, --, --</span>
+              </div>
+              <div class="turtle-info-item">
+                <span class="turtle-info-label">Facing</span>
+                <span class="turtle-info-value" id="turtle-facing">--</span>
+              </div>
+              <div class="turtle-info-item">
+                <span class="turtle-info-label">Status</span>
+                <span class="turtle-info-value" id="turtle-status">--</span>
+              </div>
+              <div class="turtle-info-item">
+                <span class="turtle-info-label">Connected</span>
+                <span class="turtle-info-value" id="turtle-connected">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="control-panel">
           

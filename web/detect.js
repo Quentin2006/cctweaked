@@ -3,7 +3,10 @@ const DETECT_ENDPOINT = "/detect";
 document.querySelectorAll("[data-detect]").forEach(function (btn) {
   btn.addEventListener("click", async function () {
     const direction = btn.getAttribute("data-detect");
-    const body = JSON.stringify({ direction: direction });
+    var bodyData = { direction: direction };
+    var turtleId = typeof getSelectedTurtleId !== 'undefined' ? getSelectedTurtleId() : null;
+    if (turtleId) bodyData.turtle_id = turtleId;
+    const body = JSON.stringify(bodyData);
 
     try {
       const resp = await fetch(DETECT_ENDPOINT, {
