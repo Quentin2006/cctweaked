@@ -5,7 +5,7 @@ from enum import Enum
 
 class Move(Enum):
     FORWARD = "turtle.forward()"
-    BACKWARD = "turtle.backward()"
+    BACKWARD = "turtle.back()"
     LEFT = "turtle.turnLeft()"
     RIGHT = "turtle.turnRight()"
     UP = "turtle.up()"

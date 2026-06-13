@@ -15,7 +15,7 @@ def create_app(manager):
             return web.json_response({"status": "queued"})
         except KeyError:
             return web.json_response(
-                {"error": "Use: FORWARD, BACKWARD, LEFT, RIGHT, UP, DOWN"},
+                {"error": "Use: FORWARD, BACK, LEFT, RIGHT, UP, DOWN"},
                 status=400,
             )
         except (ValueError, TypeError):
@@ -29,7 +29,7 @@ def create_app(manager):
     return app
 
 
-async def handle_index(request):
+async def handle_index(_):
     return web.FileResponse("index.html")
 
 

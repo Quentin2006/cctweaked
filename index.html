@@ -9,7 +9,7 @@
       <button id="up">Up</button>
       <button id="down">Down</button>
       <button id="forward">Forward</button>
-      <button id="back">Backward</button>
+      <button id="back">Back</button>
       <button id="left">Left</button>
       <button id="right">Right</button>
   </body>
@@ -56,7 +56,7 @@
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ direction: "backward", distance: 1 })
+      body: JSON.stringify({ direction: "back", distance: 1 })
     });
   });
   left.addEventListener("click", () => {
