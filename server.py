@@ -35,7 +35,7 @@ def create_app(manager):
 
     app.router.add_get("/", handle_index)
     app.router.add_post("/move", handle_move)
-    app.router.add_get("/detect", handle_detect)
+    app.router.add_post("/detect", handle_detect)
     return app
 
 
