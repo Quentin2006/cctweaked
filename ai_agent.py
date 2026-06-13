@@ -61,10 +61,10 @@ class AISession:
         opencode_home = os.path.join(DATA_DIR, "opencode")
         self.proc = await asyncio.create_subprocess_exec(
             "opencode", "run",
+            f"goal: {self.goal}",
             "--format", "json",
             "--dangerously-skip-permissions",
             "--file", SKILL_FILE,
-            f"goal: {self.goal}",
             stdout=asyncio.subprocess.PIPE,
             stdin=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
