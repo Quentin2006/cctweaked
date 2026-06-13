@@ -21,7 +21,7 @@ while true do
 					local exec_ok, result = pcall(fn)
 					local response = {ok = exec_ok}
 					if exec_ok then
-						response.result = result
+						response.result = tostring(result)
 					else
 						response.error = tostring(result)
 					end

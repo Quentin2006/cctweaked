@@ -1,49 +1,41 @@
 const MOVE_ENDPOINT = "/move";
 
-document.getElementById("up").addEventListener("click", () => {
-  fetch(MOVE_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ direction: "up", distance: 1 })
-  });
-});
+document.querySelectorAll("[data-direction]").forEach(function (btn) {
+  btn.addEventListener("click", async function () {
+    const direction = btn.getAttribute("data-direction");
+    const body = JSON.stringify({ direction: direction, distance: 1 });
 
-document.getElementById("down").addEventListener("click", () => {
-  fetch(MOVE_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ direction: "down", distance: 1 })
-  });
-});
+    try {
+      const resp = await fetch(MOVE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: body,
+      });
 
-document.getElementById("forward").addEventListener("click", () => {
-  fetch(MOVE_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ direction: "forward", distance: 1 })
-  });
-});
+      const result = await resp.json();
 
-document.getElementById("back").addEventListener("click", () => {
-  fetch(MOVE_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ direction: "back", distance: 1 })
-  });
-});
-
-document.getElementById("left").addEventListener("click", () => {
-  fetch(MOVE_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ direction: "left", distance: 1 })
-  });
-});
-
-document.getElementById("right").addEventListener("click", () => {
-  fetch(MOVE_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ direction: "right", distance: 1 })
+      if (resp.ok) {
+        window.flashButton(btn, true);
+        window.displayResult(
+          "POST /move {direction: \"" + direction + "\", distance: 1}",
+          result,
+          "move"
+        );
+      } else {
+        window.flashButton(btn, false);
+        window.displayResult(
+          "POST /move {direction: \"" + direction + "\", distance: 1}",
+          { error: result.error || "HTTP " + resp.status },
+          "move"
+        );
+      }
+    } catch (err) {
+      window.flashButton(btn, false);
+      window.displayResult(
+        "POST /move {direction: \"" + direction + "\", distance: 1}",
+        { error: err.message || "Network error" },
+        "move"
+      );
+    }
   });
 });
