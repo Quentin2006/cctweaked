@@ -15,9 +15,9 @@ class Move(Enum):
 
 
 class Detect(Enum):
-    FORWARD = "turtle.detect()"
-    UP = "turtle.detectUp()"
-    DOWN = "turtle.detectDown()"
+    FORWARD = "local ok, data = turtle.inspect(); if ok then return data.name else return 'none' end"
+    UP = "local ok, data = turtle.inspectUp(); if ok then return data.name else return 'none' end"
+    DOWN = "local ok, data = turtle.inspectDown(); if ok then return data.name else return 'none' end"
 
 
 class TurtleManager:

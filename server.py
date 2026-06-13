@@ -29,7 +29,10 @@ def create_app(manager):
             data = await request.json()
             side = Detect[data["direction"].upper()]
             result = await manager.execute(side.value)
-            return web.json_response(result)
+            block = result.get("result")
+            return web.json_response({
+                "block": block if block and block != "none" else None,
+            })
         except KeyError:
             return web.json_response({"error": "Use: FRONT, UP, DOWN"}, status=400)
         except asyncio.TimeoutError:
