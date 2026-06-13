@@ -16,9 +16,9 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: |
-          cd /mnt/Safe/data/cctweaked
+          cd /app
           git pull
           KEY_TRIMMED=$(echo "$OPENCODE_API_KEY" | xargs)
           echo "OPENCODE_API_KEY=$KEY_TRIMMED" > /app/.env
-          docker compose down
-          docker compose up -d --build
+          docker compose -p cctweaked down
+          docker compose -p cctweaked up -d --build
