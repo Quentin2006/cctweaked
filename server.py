@@ -27,7 +27,7 @@ def create_app(manager):
     async def handle_detect(request):
         try:
             data = await request.json()
-            side = Detect[data["side"].upper()]
+            side = Detect[data["direction"].upper()]
             is_block_ahead = manager.detect(side)
             return web.json_response(is_block_ahead)
         except KeyError:
