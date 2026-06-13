@@ -4,4 +4,13 @@ services:
     ports:
       - "3000:3000"
       - "3001:3001"
+    volumes:
+      - cc-data:/app/data
+    environment:
+      - DATA_DIR=/app/data
+      - BLOCKS_FILE=/app/data/blocks.txt
+      - OPENCODE_API_KEY=${OPENCODE_API_KEY:-}
     restart: unless-stopped
+
+volumes:
+  cc-data:

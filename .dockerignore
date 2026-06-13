@@ -1,8 +1,6 @@
-.git/
-.gitignore
-.github/
-__pycache__/
-*.pyc
 cc/
-.luarc.json
-.dockerignore
+.git
+__pycache__
+*.pyc
+.env
+.sisyphus/

@@ -1,14 +1,39 @@
+"""HTTP server for Turtle Control — API endpoints, AI session management, static files."""
 import asyncio
+import json
+import logging
+import os
 from aiohttp import web
 from TurtleManager import TurtleManager, Move
+from bootstrap import bootstrap
+from ai_agent import AISessionManager
 
-BLOCKS_FILE = "web/blocks.txt"
+logger = logging.getLogger(__name__)
+
+DATA_DIR = os.getenv("DATA_DIR", "data")
+BLOCKS_FILE = os.getenv("BLOCKS_FILE", os.path.join(DATA_DIR, "blocks.txt"))
 
 
-def create_app(manager):
+async def handle_index(_):
+    return web.FileResponse("web/index.html")
+
+
+def create_app(manager, ai_manager=None):
     app = web.Application()
+    ai_manager = ai_manager or AISessionManager()
+
+    async def check_ai_lock(request):
+        if ai_manager and ai_manager.active:
+            return web.json_response(
+                {"error": "AI session active — manual controls locked"},
+                status=409,
+            )
+        return None
 
     async def handle_move(request):
+        lock = await check_ai_lock(request)
+        if lock:
+            return lock
         try:
             data = await request.json()
             direction = Move[data["direction"].upper()]
@@ -27,6 +52,9 @@ def create_app(manager):
             )
 
     async def handle_detect(request):
+        lock = await check_ai_lock(request)
+        if lock:
+            return lock
         try:
             data = await request.json()
             direction = data["direction"].upper()
@@ -60,6 +88,9 @@ def create_app(manager):
         return web.json_response({"blocks": blocks})
 
     async def handle_action(request):
+        lock = await check_ai_lock(request)
+        if lock:
+            return lock
         try:
             data = await request.json()
             atype = data["type"]
@@ -67,33 +98,31 @@ def create_app(manager):
             if atype == "dig":
                 ok = await manager.dig(direction)
             elif atype == "place":
-                ok = await manager.place(direction, block=data.get("block"),
-                                          text=data.get("text"))
+                ok = await manager.place(
+                    direction, block=data.get("block"), text=data.get("text")
+                )
             elif atype == "attack":
                 ok = await manager.attack(direction)
             else:
-                return web.json_response({"error": "Use: dig, place, attack"},
-                                         status=400)
+                return web.json_response(
+                    {"error": "Use: dig, place, attack"}, status=400
+                )
             return web.json_response({"ok": ok})
         except KeyError:
             return web.json_response({"error": "Missing 'type'"}, status=400)
         except asyncio.TimeoutError:
-            return web.json_response({"error": "turtle did not respond"},
-                                     status=504)
+            return web.json_response({"error": "turtle did not respond"}, status=504)
         except ConnectionError:
-            return web.json_response({"error": "turtle not connected"},
-                                     status=503)
+            return web.json_response({"error": "turtle not connected"}, status=503)
 
     async def handle_inventory_get(request):
         try:
             state = await manager.get_inventory_state()
             return web.json_response(state)
         except asyncio.TimeoutError:
-            return web.json_response({"error": "turtle did not respond"},
-                                     status=504)
+            return web.json_response({"error": "turtle did not respond"}, status=504)
         except ConnectionError:
-            return web.json_response({"error": "turtle not connected"},
-                                     status=503)
+            return web.json_response({"error": "turtle not connected"}, status=503)
 
     async def handle_position(request):
         return web.json_response({
@@ -104,6 +133,9 @@ def create_app(manager):
         })
 
     async def handle_inventory_post(request):
+        lock = await check_ai_lock(request)
+        if lock:
+            return lock
         try:
             data = await request.json()
             op = data["type"]
@@ -145,23 +177,105 @@ def create_app(manager):
                 return web.json_response({"ok": ok})
             else:
                 return web.json_response(
-                    {"error": "Unknown operation"}, status=400)
+                    {"error": "Unknown operation"}, status=400
+                )
         except KeyError:
-            return web.json_response({"error": "Missing 'type' or params"},
-                                     status=400)
+            return web.json_response(
+                {"error": "Missing 'type' or params"}, status=400
+            )
         except asyncio.TimeoutError:
-            return web.json_response({"error": "turtle did not respond"},
-                                     status=504)
+            return web.json_response({"error": "turtle did not respond"}, status=504)
         except ConnectionError:
-            return web.json_response({"error": "turtle not connected"},
-                                     status=503)
+            return web.json_response({"error": "turtle not connected"}, status=503)
 
+    # AI routes
+    async def handle_ai_session(request):
+        try:
+            data = await request.json()
+            goal = data["goal"]
+        except (KeyError, json.JSONDecodeError):
+            return web.json_response(
+                {"error": "Missing 'goal' field"}, status=400
+            )
+        try:
+            session = ai_manager.create(goal)
+        except RuntimeError:
+            return web.json_response(
+                {"error": "AI session already active"}, status=409
+            )
+        asyncio.create_task(session.start())
+        return web.json_response({"session_id": session.id})
+
+    async def handle_ai_stream(request):
+        session_id = request.match_info["id"]
+        session = ai_manager.get(session_id)
+        if not session:
+            return web.json_response(
+                {"error": "Session not found"}, status=404
+            )
+        response = web.StreamResponse(
+            status=200,
+            headers={
+                "Content-Type": "text/event-stream",
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+            },
+        )
+        await response.prepare(request)
+        async for event in session.stream_events():
+            await response.write(
+                f"event: {event['type']}\ndata: {json.dumps(event)}\n\n".encode()
+            )
+        return response
+
+    async def handle_ai_answer(request):
+        try:
+            data = await request.json()
+            session = ai_manager.get(data["session_id"])
+            if not session:
+                return web.json_response(
+                    {"error": "Session not found"}, status=404
+                )
+            await session.answer_question(data["answer"])
+            return web.json_response({"ok": True})
+        except KeyError:
+            return web.json_response(
+                {"error": "Missing 'session_id' or 'answer'"}, status=400
+            )
+
+    async def handle_ai_cancel(request):
+        try:
+            data = await request.json()
+            ai_manager.cancel(data["session_id"])
+            return web.json_response({"ok": True})
+        except KeyError:
+            return web.json_response(
+                {"error": "Missing 'session_id'"}, status=400
+            )
+
+    # Static file handlers (replacing lambdas)
+    async def handle_move_js(_):
+        return web.FileResponse("web/move.js")
+
+    async def handle_detect_js(_):
+        return web.FileResponse("web/detect.js")
+
+    async def handle_visualize_js(_):
+        return web.FileResponse("web/visualize.js")
+
+    async def handle_action_js(_):
+        return web.FileResponse("web/action.js")
+
+    async def handle_inventory_js(_):
+        return web.FileResponse("web/inventory.js")
+
+    # Route registrations
     app.router.add_get("/", handle_index)
-    app.router.add_get("/move.js", lambda _: web.FileResponse("web/move.js"))  # pyright: ignore
-    app.router.add_get("/detect.js", lambda _: web.FileResponse("web/detect.js"))  # pyright: ignore
-    app.router.add_get("/visualize.js", lambda _: web.FileResponse("web/visualize.js"))  # pyright: ignore
-    app.router.add_get("/action.js", lambda _: web.FileResponse("web/action.js"))  # pyright: ignore
-    app.router.add_get("/inventory.js", lambda _: web.FileResponse("web/inventory.js"))  # pyright: ignore
+    app.router.add_get("/move.js", handle_move_js)
+    app.router.add_get("/detect.js", handle_detect_js)
+    app.router.add_get("/visualize.js", handle_visualize_js)
+    app.router.add_get("/action.js", handle_action_js)
+    app.router.add_get("/inventory.js", handle_inventory_js)
     app.router.add_post("/move", handle_move)
     app.router.add_post("/detect", handle_detect)
     app.router.add_get("/blocks", handle_blocks)
@@ -169,15 +283,16 @@ def create_app(manager):
     app.router.add_post("/action", handle_action)
     app.router.add_get("/inventory", handle_inventory_get)
     app.router.add_post("/inventory", handle_inventory_post)
-    return app
+    app.router.add_post("/api/ai/session", handle_ai_session)
+    app.router.add_get("/api/ai/stream/{id}", handle_ai_stream)
+    app.router.add_post("/api/ai/answer", handle_ai_answer)
+    app.router.add_post("/api/ai/cancel", handle_ai_cancel)
 
-
-async def handle_index(_):
-    return web.FileResponse("web/index.html")
+    return app, ai_manager
 
 
 async def start_http(manager):
-    app = create_app(manager)
+    app, ai_manager = create_app(manager)
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", 3001)
@@ -187,13 +302,14 @@ async def start_http(manager):
 
 
 async def main():
-    manager = TurtleManager()
+    bootstrap()
+    manager = TurtleManager(blocks_file=BLOCKS_FILE)
     manager.move(Move.UP, 5)
-
     await asyncio.gather(
         manager.start(),
         start_http(manager),
     )
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

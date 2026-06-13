@@ -99,11 +99,22 @@ class TurtleManager:
         self.connected = asyncio.Event()
         self._pending: dict[str, asyncio.Future] = {}
 
+        self._ai_locked = False
         self.x = 0
         self.y = 0
         self.z = 0
         # facing: 0=north(-Z), 1=east(+X), 2=south(+Z), 3=west(-X)
         self.facing = 0
+
+    @property
+    def ai_active(self):
+        return self._ai_locked
+
+    def lock_ai(self):
+        self._ai_locked = True
+
+    def unlock_ai(self):
+        self._ai_locked = False
 
     def _facing_vector(self) -> tuple[int, int]:
         if self.facing == 0:
