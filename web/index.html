@@ -590,6 +590,311 @@
         }
       }
 
+      /* ---- Action Panel ---- */
+      .action-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-subtle);
+      }
+
+      .action-panel .section-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-dim);
+        font-weight: 500;
+      }
+
+      .action-row {
+        display: flex;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 10px 22px;
+        border: none;
+        border-radius: var(--radius-md);
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+          background var(--transition-med);
+        box-shadow: var(--shadow-btn);
+        background: linear-gradient(145deg, #1e2822, #151d19);
+        color: var(--accent-primary);
+        border: 1px solid rgba(0, 240, 176, 0.15);
+      }
+
+      .action-btn:hover {
+        background: linear-gradient(145deg, #2a3d32, #1e2822);
+        border-color: rgba(0, 240, 176, 0.35);
+        transform: translateY(-1px);
+      }
+
+      .action-btn:active {
+        transform: translateY(2px);
+      }
+
+      .direction-selector {
+        display: flex;
+        gap: 6px;
+      }
+
+      .dir-btn {
+        padding: 5px 16px;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+        font-family: var(--font-body);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+      }
+
+      .dir-btn:hover {
+        border-color: var(--accent-primary-dim);
+        color: var(--text-primary);
+      }
+
+      .dir-btn.active {
+        background: var(--accent-primary);
+        border-color: var(--accent-primary);
+        color: #061014;
+      }
+
+      /* ---- Inventory Panel ---- */
+      .inventory-panel {
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-subtle);
+      }
+
+      .inventory-panel .section-label {
+        display: block;
+        text-align: center;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-dim);
+        font-weight: 500;
+        margin-bottom: 14px;
+      }
+
+      .inventory-layout {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .inventory-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 72px);
+        grid-template-rows: repeat(4, 62px);
+        gap: 4px;
+      }
+
+      .slot {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-size: 0.6rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: border-color var(--transition-fast), background var(--transition-fast);
+        position: relative;
+        min-width: 0;
+        overflow: hidden;
+        padding: 2px;
+      }
+
+      .slot:hover {
+        border-color: var(--border-accent);
+        background: var(--bg-hover);
+      }
+
+      .slot.slot-selected {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 10px rgba(0, 240, 176, 0.2);
+      }
+
+      .slot.slot-filled {
+        color: var(--text-primary);
+      }
+
+      .slot .slot-name {
+        font-size: 0.55rem;
+        text-align: center;
+        word-break: break-all;
+        line-height: 1.2;
+        max-width: 100%;
+      }
+
+      .slot .slot-count {
+        font-size: 0.5rem;
+        color: var(--text-dim);
+        position: absolute;
+        bottom: 2px;
+        right: 4px;
+      }
+
+      .slot .slot-num {
+        font-size: 0.45rem;
+        color: var(--text-dim);
+        position: absolute;
+        top: 2px;
+        left: 4px;
+        opacity: 0.5;
+      }
+
+      /* Crafting section */
+      .crafting-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .crafting-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 52px);
+        grid-template-rows: repeat(2, 52px);
+        gap: 3px;
+      }
+
+      .crafting-grid .slot {
+        width: 52px;
+        height: 52px;
+      }
+
+      .craft-arrow {
+        font-size: 1.5rem;
+        color: var(--text-dim);
+        font-family: var(--font-body);
+      }
+
+      .craft-result-slot {
+        width: 52px;
+        height: 52px;
+        font-size: 0.7rem;
+        color: var(--text-dim);
+      }
+
+      .craft-btn {
+        display: block;
+        margin: 14px auto 0;
+        padding: 8px 28px;
+        border: none;
+        border-radius: var(--radius-md);
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+          background var(--transition-med);
+        box-shadow: var(--shadow-btn);
+        background: linear-gradient(145deg, #1e1530, #150d24);
+        color: #b388ff;
+        border: 1px solid rgba(179, 136, 255, 0.15);
+      }
+
+      .craft-btn:hover {
+        background: linear-gradient(145deg, #2e1d4a, #1e1530);
+        border-color: rgba(179, 136, 255, 0.35);
+        transform: translateY(-1px);
+      }
+
+      .craft-btn:active {
+        transform: translateY(2px);
+      }
+
+      /* Fuel gauge */
+      .fuel-gauge {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 14px;
+        padding: 8px 14px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+      }
+
+      .fuel-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-secondary);
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .fuel-bar-track {
+        flex: 1;
+        height: 8px;
+        background: var(--bg-deep);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .fuel-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent-warning), var(--accent-primary));
+        border-radius: 4px;
+        transition: width var(--transition-med);
+      }
+
+      .fuel-text {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        color: var(--text-secondary);
+        flex-shrink: 0;
+        min-width: 50px;
+        text-align: right;
+      }
+
+      /* Responsive for inventory */
+      @media (max-width: 640px) {
+        .inventory-grid {
+          grid-template-columns: repeat(4, 56px);
+          grid-template-rows: repeat(4, 50px);
+        }
+
+        .crafting-grid {
+          grid-template-columns: repeat(2, 44px);
+          grid-template-rows: repeat(2, 44px);
+        }
+
+        .crafting-grid .slot,
+        .craft-result-slot {
+          width: 44px;
+          height: 44px;
+        }
+
+        .inventory-layout {
+          gap: 16px;
+        }
+      }
+
       /* ---- 3D Viz Panel ---- */
       .viz-panel {
         margin-top: 28px;
@@ -731,6 +1036,47 @@
         </div>
       </div>
 
+      <!-- Actions -->
+      <div class="action-panel">
+        <span class="section-label">Actions</span>
+        <div class="action-row">
+          <button class="action-btn" data-action="dig">Dig</button>
+          <button class="action-btn" data-action="place">Place</button>
+          <button class="action-btn" data-action="attack">Attack</button>
+        </div>
+        <div class="direction-selector">
+          <button class="dir-btn active" data-dir="forward">Front</button>
+          <button class="dir-btn" data-dir="up">Up</button>
+          <button class="dir-btn" data-dir="down">Down</button>
+        </div>
+      </div>
+
+      <!-- Inventory -->
+      <div class="inventory-panel">
+        <span class="section-label">Inventory</span>
+        <div class="inventory-layout">
+          <div class="inventory-grid" id="inventory-grid"></div>
+          <div class="crafting-section">
+            <div class="crafting-grid" id="crafting-grid">
+              <div class="slot" data-slot="1"></div>
+              <div class="slot" data-slot="2"></div>
+              <div class="slot" data-slot="3"></div>
+              <div class="slot" data-slot="4"></div>
+            </div>
+            <div class="craft-arrow">→</div>
+            <div class="slot craft-result-slot" id="craft-result">?</div>
+          </div>
+        </div>
+        <button class="craft-btn" id="craft-btn">Craft</button>
+        <div class="fuel-gauge">
+          <span class="fuel-label">Fuel</span>
+          <div class="fuel-bar-track">
+            <div class="fuel-bar-fill" id="fuel-fill"></div>
+          </div>
+          <span class="fuel-text" id="fuel-text">-- / --</span>
+        </div>
+      </div>
+
       <!-- 3D World -->
       <div class="viz-panel">
         <div class="panel-header">
@@ -851,6 +1197,8 @@
     </script>
     <script src="move.js"></script>
     <script src="detect.js"></script>
+    <script src="action.js"></script>
     <script type="module" src="visualize.js"></script>
+    <script type="module" src="inventory.js"></script>
   </body>
 </html>
