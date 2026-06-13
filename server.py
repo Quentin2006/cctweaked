@@ -269,6 +269,9 @@ def create_app(manager, ai_manager=None):
     async def handle_inventory_js(_):
         return web.FileResponse("web/inventory.js")
 
+    async def handle_ai_js(_):
+        return web.FileResponse("web/ai.js")
+
     # Route registrations
     app.router.add_get("/", handle_index)
     app.router.add_get("/move.js", handle_move_js)
@@ -276,6 +279,7 @@ def create_app(manager, ai_manager=None):
     app.router.add_get("/visualize.js", handle_visualize_js)
     app.router.add_get("/action.js", handle_action_js)
     app.router.add_get("/inventory.js", handle_inventory_js)
+    app.router.add_get("/ai.js", handle_ai_js)
     app.router.add_post("/move", handle_move)
     app.router.add_post("/detect", handle_detect)
     app.router.add_get("/blocks", handle_blocks)
