@@ -14,11 +14,30 @@ while true do
 				break
 			end
 
-			print("Received:", s_msg)
-
-			local ok, err = pcall(load(s_msg))
-			if not ok then
-				print("Error:", err)
+			local ok, data = pcall(textutils.unserializeJSON, s_msg)
+			if ok and type(data) == "table" and data.code then
+				local fn, compile_err = load(data.code)
+				if fn then
+					local exec_ok, result = pcall(fn)
+					local response = {ok = exec_ok}
+					if exec_ok then
+						response.result = result
+					else
+						response.error = tostring(result)
+					end
+					if data.id then
+						response.id = data.id
+					end
+					ws.send(textutils.serializeJSON(response))
+				else
+					local response = {ok = false, error = tostring(compile_err)}
+					if data.id then
+						response.id = data.id
+					end
+					ws.send(textutils.serializeJSON(response))
+				end
+			else
+				print("Received:", s_msg)
 			end
 		end
 	end

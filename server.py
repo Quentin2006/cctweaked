@@ -28,14 +28,16 @@ def create_app(manager):
         try:
             data = await request.json()
             side = Detect[data["direction"].upper()]
-            is_block_ahead = manager.detect(side)
-            return web.json_response(is_block_ahead)
+            result = await manager.execute(side.value)
+            return web.json_response(result)
         except KeyError:
             return web.json_response({"error": "Use: FRONT, UP, DOWN"}, status=400)
+        except asyncio.TimeoutError:
+            return web.json_response({"error": "turtle did not respond"}, status=504)
 
     app.router.add_get("/", handle_index)
-    app.router.add_get("/move.js", lambda r: web.FileResponse("web/move.js"))
-    app.router.add_get("/detect.js", lambda r: web.FileResponse("web/detect.js"))
+    app.router.add_get("/move.js", lambda _: web.FileResponse("web/move.js"))  # pyright: ignore
+    app.router.add_get("/detect.js", lambda _: web.FileResponse("web/detect.js"))  # pyright: ignore
     app.router.add_post("/move", handle_move)
     app.router.add_post("/detect", handle_detect)
     return app
