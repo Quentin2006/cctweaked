@@ -17,6 +17,7 @@ class TurtleManager:
         self.ws = None
         self.host = host
         self.port = port
+        self.connected = asyncio.Event()
 
     async def start(self):
         async with websockets.serve(
@@ -24,7 +25,7 @@ class TurtleManager:
             self.host,
             self.port,
         ):
-            await asyncio.Future()
+            await self.connected.wait()
 
     async def move(self, move: Move, distance: int):
         if distance < 0:
@@ -34,6 +35,7 @@ class TurtleManager:
 
     async def handle(self, ws):
         self.ws = ws
+        self.connected.set()
         async for msg in ws:
             print(f"Message: {msg}")
 

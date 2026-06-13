@@ -8,7 +8,8 @@ async def main():
 
     while True:
         await manager.move(Move.UP, 5)
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
+        await manager.move(Move.DOWN, 5)
 
 
 asyncio.run(main())
