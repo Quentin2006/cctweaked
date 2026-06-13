@@ -147,6 +147,40 @@ class AISession:
                 await self.cancel()
                 break
 
+    def _map_opencode_event(self, event):
+        """Map opencode JSON event to browser-expected 'type' and fields.
+
+        opencode --format json emits 'text', 'tool_use', 'step_start',
+        'step_finish' etc.  The browser EventSource listens for
+        'thought', 'action', 'result', 'done', 'error', 'progress'.
+        """
+        etype = event.get("type")
+        part = event.get("part", event)
+
+        if etype == "text":
+            return {
+                "type": "thought",
+                "content": part.get("text", ""),
+            }
+        if etype == "tool_use":
+            state = part.get("state", {})
+            inp = part.get("input", {})
+            cmd = inp.get("command", "")
+            if state.get("status") == "completed":
+                return {
+                    "type": "result",
+                    "method": cmd[:80],
+                    "url": "",
+                    "body": state.get("output", ""),
+                }
+            return {
+                "type": "action",
+                "method": cmd[:80],
+                "url": "",
+            }
+        # skip step_start / step_finish / other internal events
+        return None
+
     async def _read_stdout(self):
         """Read JSON lines from opencode stdout."""
         try:
@@ -167,13 +201,13 @@ class AISession:
                 except json.JSONDecodeError:
                     continue
 
+                mapped = self._map_opencode_event(event)
+                if mapped is None:
+                    continue
+
                 self.step += 1
                 self._last_event_time = datetime.now(timezone.utc)
-                await self.events.put({**event, "session_id": self.id, "step": self.step})
-
-                # Handle question — wait for answer (reader pauses until answer_question called)
-                if event.get("type") == "question":
-                    pass  # CLI is blocked on stdin read — answer_question() unblocks it
+                await self.events.put({**mapped, "session_id": self.id, "step": self.step})
 
         except Exception:
             logger.exception("Session %s stdout reader error", self.id)
