@@ -12,7 +12,8 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY server.py TurtleManager.py ai_agent.py bootstrap.py /app/
+COPY *.py /app/
+COPY *.skill.md /app/
 COPY web/ /app/web/
 COPY data.defaults/ /app/data.defaults/
 
