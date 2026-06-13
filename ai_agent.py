@@ -66,6 +66,7 @@ class AISession:
             "--format", "json",
             "--dangerously-skip-permissions",
             "--model", "opencode-go/deepseek-v4-flash",
+            "--pure",
             "--file", SKILL_FILE,
             stdout=asyncio.subprocess.PIPE,
             stdin=asyncio.subprocess.PIPE,
