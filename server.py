@@ -27,7 +27,8 @@ def create_app(manager, ai_manager=None):
     ai_manager = ai_manager or AISessionManager()
 
     async def check_ai_lock(request):
-        if ai_manager and ai_manager.active:
+        # AI's own curl calls come from localhost — skip the lock for them
+        if request.remote not in ("127.0.0.1", "::1") and ai_manager and ai_manager.active:
             return web.json_response(
                 {"error": "AI session active — manual controls locked"},
                 status=409,
