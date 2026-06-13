@@ -22,6 +22,7 @@ class TurtleConnection:
         self.facing = 0
         self.selected_slot = 1
         self.last_active = time.time()
+        self._recv_lock = asyncio.Lock()
 
     async def send(self, message):
         if self.ws and self.connected:
@@ -134,18 +135,19 @@ class TurtleManager:
         req_id = uuid.uuid4().hex[:8]
         payload = json.dumps({"code": lua_code, "request_id": req_id})
         await conn.send(payload)
-        while True:
-            raw = await asyncio.wait_for(conn.recv(), timeout=timeout)
-            if not raw:
-                raise ConnectionError("turtle not connected")
-            try:
-                msg = json.loads(raw)
-            except json.JSONDecodeError:
-                continue
-            if msg.get("request_id") == req_id:
-                if "error" in msg:
-                    raise RuntimeError(msg["error"])
-                return msg.get("result", "")
+        async with conn._recv_lock:
+            while True:
+                raw = await asyncio.wait_for(conn.recv(), timeout=timeout)
+                if not raw:
+                    raise ConnectionError("turtle not connected")
+                try:
+                    msg = json.loads(raw)
+                except json.JSONDecodeError:
+                    continue
+                if msg.get("request_id") == req_id:
+                    if "error" in msg:
+                        raise RuntimeError(msg["error"])
+                    return msg.get("result", "")
         raise asyncio.TimeoutError("turtle did not respond")
 
     async def inspect_block(self, direction: str) -> dict | None:
