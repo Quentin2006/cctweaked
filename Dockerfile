@@ -7,8 +7,12 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \
 
 WORKDIR /app
 
+# Copy requirements first for Docker layer caching
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
 # Copy application code
-COPY server.py TurtleManager.py ai_agent.py bootstrap.py requirements.txt /app/
+COPY server.py TurtleManager.py ai_agent.py bootstrap.py /app/
 COPY web/ /app/web/
 COPY data.defaults/ /app/data.defaults/
 
