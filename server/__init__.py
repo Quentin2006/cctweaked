@@ -27,25 +27,20 @@ def create_app(manager, ai_manager=None):
     app = web.Application()
     ai_manager = ai_manager or AISessionManager()
 
-    # Static file handlers
-    static_files = {
-        "/move.js": "web/js/move.js",
-        "/detect.js": "web/js/detect.js",
-        "/action.js": "web/js/action.js",
-        "/visualize.js": "web/js/visualize.js",
-        "/inventory.js": "web/js/inventory.js",
-        "/ai.js": "web/js/ai.js",
-        "/turtles.js": "web/js/turtles.js",
-    }
-
-    async def make_static_handler(path):
-        async def handler(_):
-            return web.FileResponse(path)
-        return handler
-
-    import asyncio
-    for route, fpath in static_files.items():
-        app.router.add_get(route, asyncio.run(make_static_handler(fpath)))
+    # Static file handlers (closures avoid asyncio.run in async context)
+    static_routes = [
+        ("/move.js", "web/js/move.js"),
+        ("/detect.js", "web/js/detect.js"),
+        ("/action.js", "web/js/action.js"),
+        ("/visualize.js", "web/js/visualize.js"),
+        ("/inventory.js", "web/js/inventory.js"),
+        ("/ai.js", "web/js/ai.js"),
+        ("/turtles.js", "web/js/turtles.js"),
+    ]
+    for route, fpath in static_routes:
+        async def handler(_, _fpath=fpath):
+            return web.FileResponse(_fpath)
+        app.router.add_get(route, handler)
 
     app.router.add_get("/", handle_index)
 
