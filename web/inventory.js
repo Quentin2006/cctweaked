@@ -3,6 +3,8 @@ const CRAFT_BTN = document.getElementById("craft-btn");
 const FUEL_FILL = document.getElementById("fuel-fill");
 const FUEL_TEXT = document.getElementById("fuel-text");
 
+let dragSource = null;
+
 const ITEM_COLORS = {
   "minecraft:dirt": "#8B4513",
   "minecraft:stone": "#808080",
@@ -23,44 +25,108 @@ function getItemColor(name) {
 
 function shortenName(name) {
   if (!name) return "";
-  var parts = name.split(":");
-  if (parts.length === 2) {
-    return parts[1].replace(/_/g, " ");
-  }
+  const parts = name.split(":");
+  if (parts.length === 2) return parts[1].replace(/_/g, " ");
   return name.replace(/_/g, " ");
+}
+
+function clearDragOver() {
+  document.querySelectorAll(".slot-drag-over").forEach(el => el.classList.remove("slot-drag-over"));
+}
+
+function attachDragEvents(el, slotNum) {
+  el.setAttribute("draggable", "true");
+
+  el.addEventListener("dragstart", function (e) {
+    if (!this.classList.contains("slot-filled")) {
+      e.preventDefault();
+      return;
+    }
+    dragSource = slotNum;
+    this.classList.add("slot-drag-source");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(slotNum));
+  });
+
+  el.addEventListener("dragend", function () {
+    document.querySelectorAll(".slot-drag-source").forEach(el => el.classList.remove("slot-drag-source"));
+    clearDragOver();
+    dragSource = null;
+  });
+
+  el.addEventListener("dragover", function (e) {
+    if (dragSource === null || dragSource === slotNum) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  });
+
+  el.addEventListener("dragenter", function () {
+    if (dragSource === null || dragSource === slotNum) return;
+    this.classList.add("slot-drag-over");
+  });
+
+  el.addEventListener("dragleave", function () {
+    this.classList.remove("slot-drag-over");
+  });
+
+  el.addEventListener("drop", function (e) {
+    e.preventDefault();
+    clearDragOver();
+    if (dragSource === null || dragSource === slotNum) return;
+    const src = dragSource;
+    const tgt = slotNum;
+    dragSource = null;
+    document.querySelectorAll(".slot-drag-source").forEach(el => el.classList.remove("slot-drag-source"));
+    transferSlots(src, tgt);
+  });
+
+  el.addEventListener("click", function () {
+    selectSlot(slotNum);
+  });
+}
+
+async function transferSlots(source, target) {
+  try {
+    await fetch("/inventory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "select", slot: source }),
+    });
+    await fetch("/inventory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "transfer", slot: target }),
+    });
+  } catch (_) {}
 }
 
 function renderInventory(data) {
   if (!data || !data.slots) return;
-
-  var selected = data.selected_slot || 1;
+  const selected = data.selected_slot || 1;
 
   INVENTORY_GRID.innerHTML = "";
-  for (var i = 0; i < 16; i++) {
-    var slotNum = i + 1;
-    var item = data.slots[i] || null;
-
-    var div = document.createElement("div");
+  for (let i = 0; i < 16; i++) {
+    const slotNum = i + 1;
+    const item = data.slots[i] || null;
+    const div = document.createElement("div");
     div.className = "slot";
     if (slotNum === selected) div.classList.add("slot-selected");
     if (item) div.classList.add("slot-filled");
 
-    var numEl = document.createElement("span");
+    const numEl = document.createElement("span");
     numEl.className = "slot-num";
     numEl.textContent = slotNum;
     div.appendChild(numEl);
 
     if (item && item.name) {
-      var color = getItemColor(item.name);
+      const color = getItemColor(item.name);
       if (color) div.style.borderColor = color;
-
-      var nameEl = document.createElement("span");
+      const nameEl = document.createElement("span");
       nameEl.className = "slot-name";
       nameEl.textContent = shortenName(item.name);
       div.appendChild(nameEl);
-
       if (item.count && item.count > 1) {
-        var countEl = document.createElement("span");
+        const countEl = document.createElement("span");
         countEl.className = "slot-count";
         countEl.textContent = item.count;
         div.appendChild(countEl);
@@ -68,53 +134,52 @@ function renderInventory(data) {
     }
 
     div.setAttribute("data-slot", slotNum);
-    div.addEventListener("click", function () {
-      var s = parseInt(this.getAttribute("data-slot"));
-      selectSlot(s);
-    });
-
+    attachDragEvents(div, slotNum);
     INVENTORY_GRID.appendChild(div);
   }
 
-  for (var j = 0; j < 4; j++) {
-    var cs = document.querySelector('#crafting-grid .slot[data-slot="' + (j + 1) + '"]');
+  for (let j = 0; j < 4; j++) {
+    const cs = document.querySelector('#crafting-grid .slot[data-slot="' + (j + 1) + '"]');
     if (!cs) continue;
-    var item = data.slots[j] || null;
+    const item = data.slots[j] || null;
     cs.className = "slot";
+    cs.setAttribute("draggable", "true");
     if (item) {
       cs.classList.add("slot-filled");
       cs.innerHTML = "";
-      var numEl = document.createElement("span");
+      const numEl = document.createElement("span");
       numEl.className = "slot-num";
       numEl.textContent = j + 1;
       cs.appendChild(numEl);
-      var nameEl = document.createElement("span");
+      const nameEl = document.createElement("span");
       nameEl.className = "slot-name";
       nameEl.textContent = item.name ? shortenName(item.name) : "?";
       cs.appendChild(nameEl);
       if (item.count && item.count > 1) {
-        var countEl = document.createElement("span");
+        const countEl = document.createElement("span");
         countEl.className = "slot-count";
         countEl.textContent = item.count;
         cs.appendChild(countEl);
       }
     } else {
-      cs.className = "slot";
       cs.innerHTML = "";
-      var numEl = document.createElement("span");
+      const numEl = document.createElement("span");
       numEl.className = "slot-num";
       numEl.textContent = j + 1;
       cs.appendChild(numEl);
     }
+    // Re-attach drag events (they get reset when innerHTML is wiped)
+    const newCs = document.querySelector('#crafting-grid .slot[data-slot="' + (j + 1) + '"]');
+    if (newCs) attachDragEvents(newCs, j + 1);
   }
 
   if (data.fuel) updateFuel(data.fuel);
 }
 
 function updateFuel(fuel) {
-  var level = typeof fuel.level === "number" ? fuel.level : 0;
-  var limit = typeof fuel.limit === "number" ? fuel.limit : 0;
-  var pct = limit > 0 ? Math.min(100, (level / limit) * 100) : 0;
+  const level = typeof fuel.level === "number" ? fuel.level : 0;
+  const limit = typeof fuel.limit === "number" ? fuel.limit : 0;
+  const pct = limit > 0 ? Math.min(100, (level / limit) * 100) : 0;
   FUEL_FILL.style.width = pct + "%";
   FUEL_TEXT.textContent = level + " / " + limit;
 }
@@ -131,12 +196,12 @@ async function selectSlot(slot) {
 
 async function craft() {
   try {
-    var resp = await fetch("/inventory", {
+    const resp = await fetch("/inventory", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "craft", limit: 64 }),
     });
-    var result = await resp.json();
+    const result = await resp.json();
     window.displayResult("POST /inventory {type: \"craft\"}", result, "craft");
     window.flashButton(CRAFT_BTN, resp.ok);
   } catch (err) {
@@ -149,9 +214,9 @@ CRAFT_BTN.addEventListener("click", craft);
 
 async function fetchInventory() {
   try {
-    var resp = await fetch("/inventory");
+    const resp = await fetch("/inventory");
     if (!resp.ok) return;
-    var data = await resp.json();
+    const data = await resp.json();
     renderInventory(data);
   } catch (_) {}
 }
