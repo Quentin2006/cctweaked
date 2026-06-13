@@ -41,8 +41,12 @@ class TurtleManager:
     async def handle(self, ws):
         self.ws = ws
         self.connected.set()
-        async for msg in ws:
-            print(f"Message: {msg}")
+        try:
+            async for msg in ws:
+                print(f"Message: {msg}")
+        finally:
+            self.ws = None
+            print("Turtle disconnected")
 
     async def send(self, command):
         if self.ws:
