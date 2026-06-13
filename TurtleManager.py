@@ -17,21 +17,26 @@ class TurtleManager:
         self.ws = None
         self.host = host
         self.port = port
+        self.commands = []
         self.connected = asyncio.Event()
 
+    async def _dispatch_loop(self):
+        while True:
+            if self.commands:
+                await self.send(self.commands)
+            await asyncio.sleep(0.5)
+
     async def start(self):
-        self._server = await websockets.serve(
-            self.handle,
-            self.host,
-            self.port,
-        )
-        await self.connected.wait()
+        async with websockets.serve(self.handle, self.host, self.port) as server:
+            await self.connected.wait()
+            asyncio.create_task(self._dispatch_loop())
+            await server.serve_forever()
 
     async def move(self, move: Move, distance: int):
         if distance < 0:
             raise ValueError("Distance must be non-negative")
         for _ in range(distance):
-            await self.send(move.value)
+            self.commands.append(move.value)
 
     async def handle(self, ws):
         self.ws = ws
@@ -41,4 +46,5 @@ class TurtleManager:
 
     async def send(self, command):
         if self.ws:
-            await self.ws.send(command)
+            await self.ws.send(command[0])
+            command.pop(0)
