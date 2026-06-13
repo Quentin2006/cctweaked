@@ -24,8 +24,13 @@ def create_app(manager):
                 status=400,
             )
 
+    app.router.add_get("/", handle_index)
     app.router.add_post("/move", handle_move)
     return app
+
+
+async def handle_index(request):
+    return web.FileResponse("index.html")
 
 
 async def start_http(manager):

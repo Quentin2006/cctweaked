@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+  </head>
+  <body>
+      <button id="up">Up</button>
+      <button id="down">Down</button>
+      <button id="forward">Forward</button>
+      <button id="back">Backward</button>
+      <button id="left">Left</button>
+      <button id="right">Right</button>
+  </body>
+  <script>
+  const up = document.getElementById("up");
+  const down= document.getElementById("down");
+  const forward= document.getElementById("forward");
+  const back= document.getElementById("back");
+  const left= document.getElementById("left");
+  const right= document.getElementById("right");
+
+  const URL = "/move";
+
+  up.addEventListener("click", () => {
+    fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ direction: "up", distance: 1 })
+    });
+  });
+  down.addEventListener("click", () => {
+    fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ direction: "down", distance: 1 })
+    });
+  });
+  forward.addEventListener("click", () => {
+    fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ direction: "forward", distance: 1 })
+    });
+  });
+  back.addEventListener("click", () => {
+    fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ direction: "backward", distance: 1 })
+    });
+  });
+  left.addEventListener("click", () => {
+    fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ direction: "left", distance: 1 })
+    });
+  });
+  right.addEventListener("click", () => {
+    fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ direction: "right", distance: 1 })
+    });
+  });
+
+
+  </script>
+
+</html>
