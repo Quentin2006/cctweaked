@@ -34,6 +34,8 @@ def create_app(manager):
             return web.json_response({"error": "Use: FRONT, UP, DOWN"}, status=400)
 
     app.router.add_get("/", handle_index)
+    app.router.add_get("/move.js", lambda r: web.FileResponse("web/move.js"))
+    app.router.add_get("/detect.js", lambda r: web.FileResponse("web/detect.js"))
     app.router.add_post("/move", handle_move)
     app.router.add_post("/detect", handle_detect)
     return app
