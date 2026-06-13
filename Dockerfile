@@ -16,7 +16,6 @@ COPY server.py /app/
 COPY server/ /app/server/
 COPY skills/ /app/skills/
 COPY web/ /app/web/
-COPY lua/ /app/lua/
 COPY data.defaults/ /app/data.defaults/
 
 EXPOSE 3000 3001
