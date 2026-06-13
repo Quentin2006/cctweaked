@@ -16,9 +16,9 @@
 
       <div/>
 
-      <button id="detect">Right</button>
-      <button id="detect_up">Right</button>
-      <button id="detect_down">Right</button>
+      <button id="detect">forward</button>
+      <button id="detect_up">up</button>
+      <button id="detect_down">down</button>
   </body>
   <script>
   const up = document.getElementById("up");
@@ -97,7 +97,7 @@
   DETECT_ENDPOINT = "/detect";
 
   detect.addEventListener("click", () => {
-    fetch("DETECT_ENDPOINT\", {
+    fetch(DETECT_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -107,7 +107,7 @@
   }).then(response => print(response.json()))
 
   detect.addEventListener("click", () => {
-    fetch("DETECT_ENDPOINT\", {
+    fetch(DETECT_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -117,7 +117,7 @@
   }).then(response => print(response.json()))
 
   detect.addEventListener("click", () => {
-    fetch("DETECT_ENDPOINT\", {
+    fetch(DETECT_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
