@@ -1,0 +1,10 @@
+[     333ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.102.127.19:3001/turtles.js:0
+[    1160ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[    1162ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://100.102.127.19:3001/favicon.ico:0
+[    3162ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[    5161ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[    7159ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[    9161ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   11161ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   13159ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   15163ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
