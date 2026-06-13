@@ -134,7 +134,7 @@ class TurtleManager:
         if not conn or not conn.connected:
             raise ConnectionError("turtle not connected")
         req_id = uuid.uuid4().hex[:8]
-        payload = json.dumps({"code": lua_code, "request_id": req_id})
+        payload = json.dumps({"code": lua_code, "id": req_id})
         await conn.send(payload)
         while True:
             raw = await asyncio.wait_for(conn.recv(), timeout=timeout)
@@ -144,7 +144,7 @@ class TurtleManager:
                 msg = json.loads(raw)
             except json.JSONDecodeError:
                 continue
-            if msg.get("request_id") == req_id:
+            if msg.get("id") == req_id:
                 if "error" in msg:
                     raise RuntimeError(msg["error"])
                 return msg.get("result", "")

@@ -11,3 +11,32 @@
 [   10111ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
 [   12110ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
 [   12114ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   14108ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   14112ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   16106ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   16111ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   18109ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   18113ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   20104ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   20107ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   22104ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   22106ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   24105ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   24106ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   26106ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   26112ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   28108ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   28111ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   30108ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   30112ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   32106ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   32111ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://100.102.127.19:3001/inventory:0
+[   33102ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/blocks:0
+[   33103ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[   33109ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/api/turtles:0
+[   34104ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34105ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34603ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[   36110ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[   36111ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[   49494ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
