@@ -32,7 +32,7 @@ class TurtleManager:
             asyncio.create_task(self._dispatch_loop())
             await server.serve_forever()
 
-    async def move(self, move: Move, distance: int):
+    def move(self, move: Move, distance: int):
         if distance < 0:
             raise ValueError("Distance must be non-negative")
         for _ in range(distance):
