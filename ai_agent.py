@@ -28,6 +28,7 @@ class AISession:
         self._cancelled = False
         self.status = "idle"
         self.created_at = datetime.now(timezone.utc).isoformat()
+        self._last_event_time = datetime.now(timezone.utc)
 
     async def start(self):
         """Spawn opencode CLI subprocess."""
@@ -78,6 +79,7 @@ class AISession:
 
         asyncio.create_task(self._read_stdout())
         asyncio.create_task(self._read_stderr())
+        asyncio.create_task(self._watchdog())
 
     async def _read_stderr(self):
         try:
@@ -95,6 +97,46 @@ class AISession:
                     })
         except Exception:
             logger.exception("Session %s stderr reader error", self.id)
+
+    async def _watchdog(self):
+        """Enforce idle timeout, session timeout, and max steps."""
+        start_time = datetime.now(timezone.utc)
+        while not self._cancelled:
+            await asyncio.sleep(10)
+            if self.status in ("completed", "failed"):
+                break
+
+            if self.step >= MAX_STEPS:
+                await self.events.put({
+                    "type": "done",
+                    "content": f"Reached max steps ({MAX_STEPS})",
+                    "session_id": self.id,
+                    "step": self.step,
+                })
+                await self.cancel()
+                break
+
+            elapsed = (datetime.now(timezone.utc) - start_time).total_seconds()
+            if elapsed > SESSION_TIMEOUT:
+                logger.warning("Session %s timed out after %ss", self.id, SESSION_TIMEOUT)
+                await self.events.put({
+                    "type": "error",
+                    "content": f"Session timed out after {SESSION_TIMEOUT}s",
+                    "session_id": self.id,
+                })
+                await self.cancel()
+                break
+
+            idle = (datetime.now(timezone.utc) - self._last_event_time).total_seconds()
+            if idle > IDLE_TIMEOUT:
+                logger.warning("Session %s idle for %ss", self.id, idle)
+                await self.events.put({
+                    "type": "error",
+                    "content": f"No output for {int(idle)}s (timeout: {IDLE_TIMEOUT}s)",
+                    "session_id": self.id,
+                })
+                await self.cancel()
+                break
 
     async def _read_stdout(self):
         """Read JSON lines from opencode stdout."""
@@ -117,6 +159,7 @@ class AISession:
                     continue
 
                 self.step += 1
+                self._last_event_time = datetime.now(timezone.utc)
                 await self.events.put({**event, "session_id": self.id, "step": self.step})
 
                 # Handle question — wait for answer (reader pauses until answer_question called)
