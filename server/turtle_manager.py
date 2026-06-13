@@ -317,7 +317,10 @@ class TurtleManager:
             self.turtles[conn.id] = conn
             self._current_turtle_id = conn.id
             try:
-                async for msg in ws:
+                while True:
+                    msg = await conn.recv()
+                    if msg is None:
+                        break
                     try:
                         data = json.loads(msg)
                     except json.JSONDecodeError:
