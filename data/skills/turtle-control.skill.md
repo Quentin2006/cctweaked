@@ -74,17 +74,18 @@ If you don't need input, don't read stdin.
 2. **Turtle needs FUEL** — Check fuel level before moving. Refuel with coal/charcoal using POST /inventory {"type": "refuel"}.
 3. **Move ONE step at a time** — Verify with GET /position after each move.
 4. **Smart movement** — The server inspects before moving. If blocked, you won't move. Use POST /detect to see what's ahead.
-5. **16 inventory slots** (1-16). Slot 1 is selected by default.
-6. **Crafting** uses a 2x2 grid (slots 1-4).
-7. **If stuck** — use POST /action {"type": "dig"} to break the block ahead.
-8. **Never mine straight down** — you'll fall.
-9. **Check inventory** before mining — don't waste resources you already have.
-10. **Map blocks** — detected blocks are saved to the map. Use GET /blocks to see the world.
-11. **Clear the map** — POST /blocks (empty body) clears all recorded blocks.
-12. **The turtle is a COMPUTER** — it runs Lua code and connects via WebSocket. It is NOT a player character.
-13. **WAIT for commands to complete** — The turtle processes commands serially (one at a time). Each command can take up to 10 seconds. Do NOT send rapid commands. Wait for the response before sending the next one.
-14. **If "turtle did not respond"** — Wait 5 seconds and retry ONCE. Do not spam commands. The turtle may be busy mining or moving. If it fails twice, STOP and ask the user for help.
-15. **Mining takes time** — Digging a block can take 1-10 seconds depending on the block type and server lag. Be patient.
-16. **ALWAYS check the response** — After sending a command, wait for the JSON response. Do not send another command until you receive the response. If you get a 405 error, you used the wrong HTTP method. If you get a 504 error, the turtle timed out. If you get a 503 error, the turtle is disconnected.
-17. **Do not queue commands** — Send one command, wait for response, then send the next. The server does not queue commands for you.
-18. **Position updates after move** — After POST /move, the turtle moves one block. Always verify with GET /position to confirm the new location.
+5. **Position is absolute** — If the turtle has a GPS modem and GPS hosts are set up, the position is the absolute Minecraft world coordinates (not relative). If GPS is unavailable, position is relative to where the turtle started.
+6. **16 inventory slots** (1-16). Slot 1 is selected by default.
+7. **Crafting** uses a 2x2 grid (slots 1-4).
+8. **If stuck** — use POST /action {"type": "dig"} to break the block ahead.
+9. **Never mine straight down** — you'll fall.
+10. **Check inventory** before mining — don't waste resources you already have.
+11. **Map blocks** — detected blocks are saved to the map. Use GET /blocks to see the world.
+12. **Clear the map** — POST /blocks (empty body) clears all recorded blocks.
+13. **The turtle is a COMPUTER** — it runs Lua code and connects via WebSocket. It is NOT a player character.
+14. **WAIT for commands to complete** — The turtle processes commands serially (one at a time). Each command can take up to 10 seconds. Do NOT send rapid commands. Wait for the response before sending the next one.
+15. **If "turtle did not respond"** — Wait 5 seconds and retry ONCE. Do not spam commands. The turtle may be busy mining or moving. If it fails twice, STOP and ask the user for help.
+16. **Mining takes time** — Digging a block can take 1-10 seconds depending on the block type and server lag. Be patient.
+17. **ALWAYS check the response** — After sending a command, wait for the JSON response. Do not send another command until you receive the response. If you get a 405 error, you used the wrong HTTP method. If you get a 504 error, the turtle timed out. If you get a 503 error, the turtle is disconnected.
+18. **Do not queue commands** — Send one command, wait for response, then send the next. The server does not queue commands for you.
+19. **Position updates after move** — After POST /move, the turtle moves one block. Always verify with GET /position to confirm the new location.

@@ -423,6 +423,24 @@ class TurtleManager:
             "fuel": {"level": fuel_level, "limit": fuel_limit},
         }
 
+    async def _read_gps_init(self, conn):
+        try:
+            raw = await asyncio.wait_for(conn.recv(), timeout=5.0)
+            if raw:
+                msg = json.loads(raw)
+                if msg.get("type") == "init" and "x" in msg and "y" in msg and "z" in msg:
+                    conn.x = msg["x"]
+                    conn.y = msg["y"]
+                    conn.z = msg["z"]
+                    self.x = msg["x"]
+                    self.y = msg["y"]
+                    self.z = msg["z"]
+                    print(f"GPS init: {msg['x']}, {msg['y']}, {msg['z']}")
+                    return True
+        except (asyncio.TimeoutError, json.JSONDecodeError):
+            pass
+        return False
+
     async def start(self):
         self._dispatch_task = asyncio.create_task(self._dispatch_loop())
         async def server(ws, path=None):
@@ -434,6 +452,7 @@ class TurtleManager:
             conn.y = self.y
             conn.z = self.z
             conn.facing = self.facing
+            await self._read_gps_init(conn)
             try:
                 await conn._recv_task
             except websockets.exceptions.ConnectionClosed:

@@ -34,6 +34,19 @@ while true do
         os.sleep(5)
     else
         print("Connected")
+        local has_gps = false
+        if gps and gps.locate then
+            local x, y, z = gps.locate(5)
+            if x then
+                local init_msg = textutils.serializeJSON({type = "init", x = x, y = y, z = z})
+                ws.send(init_msg)
+                print("GPS position: " .. x .. ", " .. y .. ", " .. z)
+                has_gps = true
+            end
+        end
+        if not has_gps then
+            print("No GPS signal, using relative position")
+        end
         while true do
             local s_msg = ws.receive()
             if not s_msg then
@@ -42,26 +55,28 @@ while true do
             end
 
             local ok, data = pcall(textutils.unserializeJSON, s_msg)
-            if ok and type(data) == "table" and data.code then
-                local fn, compile_err = load(data.code)
-                if fn then
-                    local exec_ok, result = pcall(fn)
-                    local response = {ok = exec_ok}
-                    if exec_ok then
-                        response.result = tostring(result)
+            if ok and type(data) == "table" then
+                if data.code then
+                    local fn, compile_err = load(data.code)
+                    if fn then
+                        local exec_ok, result = pcall(fn)
+                        local response = {ok = exec_ok}
+                        if exec_ok then
+                            response.result = tostring(result)
+                        else
+                            response.error = tostring(result)
+                        end
+                        if data.id then
+                            response.id = data.id
+                        end
+                        safeSend(ws, response)
                     else
-                        response.error = tostring(result)
+                        local response = {ok = false, error = tostring(compile_err)}
+                        if data.id then
+                            response.id = data.id
+                        end
+                        safeSend(ws, response)
                     end
-                    if data.id then
-                        response.id = data.id
-                    end
-                    safeSend(ws, response)
-                else
-                    local response = {ok = false, error = tostring(compile_err)}
-                    if data.id then
-                        response.id = data.id
-                    end
-                    safeSend(ws, response)
                 end
             else
                 print("Received:", s_msg)
