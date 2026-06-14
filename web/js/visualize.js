@@ -145,16 +145,19 @@ const FACING_VECTORS = {
 };
 
 let targetPosition = new THREE.Vector3(0, 0, 0);
+let cameraOffset = new THREE.Vector3(8, 8, 8);
 
 function updateTurtle(pos) {
   turtleGroup.position.set(pos.x, pos.y, pos.z);
-  // head faces +Z (south = facing 2).  Rotate Y for other directions.
-  // facing: 0=north(-Z), 1=east(+X), 2=south(+Z), 3=west(-X)
   const angles = { 0: Math.PI, 1: -Math.PI / 2, 2: 0, 3: Math.PI / 2 };
   turtleGroup.rotation.y = angles[pos.facing] || 0;
 
-  targetPosition.set(pos.x, pos.y, pos.z);
-  controls.target.lerp(targetPosition, 0.1);
+  const newTarget = new THREE.Vector3(pos.x, pos.y, pos.z);
+  const delta = newTarget.clone().sub(targetPosition);
+  targetPosition.copy(newTarget);
+
+  controls.target.copy(targetPosition);
+  camera.position.add(delta);
   controls.update();
 }
 
