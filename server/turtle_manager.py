@@ -438,5 +438,41 @@ class TurtleManager:
                 async with self.lock:
                     if self.pending:
                         code = self.pending.pop(0)
+                        direction = None
+                        if code == Move.FORWARD.value:
+                            direction = Move.FORWARD
+                        elif code == Move.BACK.value:
+                            direction = Move.BACK
+                        elif code == Move.UP.value:
+                            direction = Move.UP
+                        elif code == Move.DOWN.value:
+                            direction = Move.DOWN
+                        elif code == Move.LEFT.value:
+                            direction = Move.LEFT
+                        elif code == Move.RIGHT.value:
+                            direction = Move.RIGHT
+
+                        if direction in (Move.FORWARD, Move.UP, Move.DOWN):
+                            inspect_dir = "FORWARD"
+                            if direction == Move.UP:
+                                inspect_dir = "UP"
+                            elif direction == Move.DOWN:
+                                inspect_dir = "DOWN"
+                            try:
+                                block = await self.inspect_block(inspect_dir)
+                                if block:
+                                    continue
+                            except (ConnectionError, asyncio.TimeoutError):
+                                continue
+
+                        if direction:
+                            try:
+                                result = await self.execute(code)
+                                if result == "true":
+                                    self._update_position(direction, 1)
+                            except (ConnectionError, asyncio.TimeoutError):
+                                pass
+                            continue
+
                         await self._current.send(json.dumps({"code": code}))
             await asyncio.sleep(0.5)
