@@ -14,9 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY server.py /app/
 COPY server/ /app/server/
-COPY skills/ /app/skills/
 COPY web/ /app/web/
-COPY data.defaults/ /app/data.defaults/
 
 EXPOSE 3000 3001
 CMD ["python", "server.py"]
