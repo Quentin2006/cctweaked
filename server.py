@@ -4,7 +4,6 @@ import asyncio
 from aiohttp import web
 from server import create_app, create_manager, BLOCKS_FILE
 from server.bootstrap import bootstrap
-from server.enums import Move
 
 
 async def start_http(manager):
@@ -20,7 +19,6 @@ async def start_http(manager):
 async def main():
     bootstrap()
     manager = create_manager(blocks_file=BLOCKS_FILE)
-    manager.move(Move.UP, 5)
     await asyncio.gather(
         manager.start(),
         start_http(manager),

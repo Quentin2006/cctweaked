@@ -55,6 +55,7 @@ class TurtleManager:
         self.turtles = {}
         self.pending = []
         self.lock = asyncio.Lock()
+        self._pending_event = asyncio.Event()
         self._current_turtle_id = None
         self.blocks_file = blocks_file
         self.state_file = state_file
@@ -130,6 +131,7 @@ class TurtleManager:
     def move(self, direction: Move, distance: int = 1):
         for _ in range(distance):
             self.pending.append(direction.value)
+        self._pending_event.set()
 
     def _update_position(self, direction: Move, distance: int):
         conn = self._current
@@ -433,45 +435,69 @@ class TurtleManager:
 
     async def _dispatch_loop(self):
         while True:
-            if self.pending and self._current and self._current.connected:
-                async with self.lock:
-                    if self.pending:
-                        code = self.pending.pop(0)
-                        direction = None
-                        if code == Move.FORWARD.value:
-                            direction = Move.FORWARD
-                        elif code == Move.BACK.value:
-                            direction = Move.BACK
-                        elif code == Move.UP.value:
-                            direction = Move.UP
-                        elif code == Move.DOWN.value:
-                            direction = Move.DOWN
-                        elif code == Move.LEFT.value:
-                            direction = Move.LEFT
-                        elif code == Move.RIGHT.value:
-                            direction = Move.RIGHT
+            if not self.pending or not self._current or not self._current.connected:
+                self._pending_event.clear()
+                try:
+                    await asyncio.wait_for(self._pending_event.wait(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    pass
+                continue
+            code = self.pending.pop(0)
+            direction = None
+            if code == Move.FORWARD.value:
+                direction = Move.FORWARD
+            elif code == Move.BACK.value:
+                direction = Move.BACK
+            elif code == Move.UP.value:
+                direction = Move.UP
+            elif code == Move.DOWN.value:
+                direction = Move.DOWN
+            elif code == Move.LEFT.value:
+                direction = Move.LEFT
+            elif code == Move.RIGHT.value:
+                direction = Move.RIGHT
 
-                        if direction in (Move.FORWARD, Move.UP, Move.DOWN):
-                            inspect_dir = "FORWARD"
-                            if direction == Move.UP:
-                                inspect_dir = "UP"
-                            elif direction == Move.DOWN:
-                                inspect_dir = "DOWN"
-                            try:
-                                block = await self.inspect_block(inspect_dir)
-                                if block:
-                                    continue
-                            except (ConnectionError, asyncio.TimeoutError):
-                                continue
+            if direction in (Move.FORWARD, Move.UP, Move.DOWN):
+                inspect_dir = "FORWARD"
+                if direction == Move.UP:
+                    inspect_dir = "UP"
+                elif direction == Move.DOWN:
+                    inspect_dir = "DOWN"
+                lua_code = self._build_smart_move_lua(inspect_dir, code)
+                try:
+                    result = await self.execute(lua_code)
+                    if result.startswith("BLOCK:"):
+                        block_name = result[6:]
+                        self._save_block(inspect_dir, block_name)
+                    elif result == "true":
+                        self._update_position(direction, 1)
+                except (ConnectionError, asyncio.TimeoutError):
+                    pass
+                continue
 
-                        if direction:
-                            try:
-                                result = await self.execute(code)
-                                if result == "true":
-                                    self._update_position(direction, 1)
-                            except (ConnectionError, asyncio.TimeoutError):
-                                pass
-                            continue
+            if direction:
+                try:
+                    result = await self.execute(code)
+                    if result == "true":
+                        self._update_position(direction, 1)
+                except (ConnectionError, asyncio.TimeoutError):
+                    pass
+                continue
 
-                        await self._current.send(json.dumps({"code": code}))
-            await asyncio.sleep(0.5)
+            if self._current and self._current.connected:
+                try:
+                    await self._current.send(json.dumps({"code": code}))
+                except (ConnectionError, asyncio.TimeoutError):
+                    pass
+
+    def _build_smart_move_lua(self, inspect_dir: str, move_code: str) -> str:
+        inspect_fn = "turtle.inspect"
+        if inspect_dir == "UP":
+            inspect_fn = "turtle.inspectUp"
+        elif inspect_dir == "DOWN":
+            inspect_fn = "turtle.inspectDown"
+        return (
+            f"local ok, data = {inspect_fn}(); "
+            f"if ok then return 'BLOCK:' .. data.name else "
+            f"local ok2 = {move_code}; return tostring(ok2) end"
+        )
