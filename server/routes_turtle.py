@@ -115,6 +115,14 @@ def register_turtle_routes(app, manager, ai_manager, blocks_file):
             return web.json_response({"error": "turtle not connected"}, status=503)
 
     async def handle_position(request):
+        conn = manager._current
+        if conn:
+            return web.json_response({
+                "x": conn.x,
+                "y": conn.y,
+                "z": conn.z,
+                "facing": conn.facing,
+            })
         return web.json_response({
             "x": manager.x,
             "y": manager.y,

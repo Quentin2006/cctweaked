@@ -204,8 +204,8 @@ function animate() {
 animate();
 fetchBlocks();
 fetchPosition();
-setInterval(fetchBlocks, 3000);
-setInterval(fetchPosition, 1500);
+setInterval(fetchBlocks, 1000);
+setInterval(fetchPosition, 500);
 
 const resizeObserver = new ResizeObserver(function () {
   const w = container.clientWidth;

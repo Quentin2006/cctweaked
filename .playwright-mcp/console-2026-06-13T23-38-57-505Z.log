@@ -1,0 +1,173 @@
+[    5085ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   14439ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   33758ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   38764ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   38764ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   39756ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   41180ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   43769ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   45181ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   45758ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   53179ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   54664ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   55087ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   57179ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   58623ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   59755ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   61083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   67179ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   68406ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   69083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   71179ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   72416ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   77086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   77654ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   79085ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   81761ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   82660ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   83085ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   83086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   91758ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   91816ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   93178ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   95180ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   97181ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   97757ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  101087ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  101755ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  103184ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  105755ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  107178ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  111086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  111995ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  111996ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  111996ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  111996ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  111998ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  111998ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  111998ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  111998ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  111999ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  112000ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  112000ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  112001ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  112001ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  112003ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  112003ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  112081ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  112581ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[  114081ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/blocks:0
+[  114081ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[  114081ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  114088ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/api/turtles:0
+[  115582ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[  116081ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  123083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  128087ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  133091ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  138095ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  143098ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  148102ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  153106ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  157082ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  158111ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  161086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  163083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  163115ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  167086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  168119ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  171083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  173084ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  173123ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  177084ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  178126ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  181084ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  183083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  183129ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  186573ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186573ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186575ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186575ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186575ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186575ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186576ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186577ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186577ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186577ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186578ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186578ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  186579ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  187580ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[  188080ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[  189080ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/blocks:0
+[  189081ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[  189088ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/api/turtles:0
+[  190081ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[  198444ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  203667ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  208671ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  208674ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[  208675ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[  208677ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[  213684ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  218688ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  223694ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  228698ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  233703ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  238707ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  243082ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  243084ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  243711ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  251083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  253177ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  255756ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  256086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  256761ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  259084ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  259085ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  261763ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  265756ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  269179ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  271756ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  275086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  275087ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  277082ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  277178ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  277756ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  283083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  285083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  285177ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  287087ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  287088ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  295095ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  295755ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  299088ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  299090ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  300763ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  300763ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  301181ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  305770ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  305773ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[  309084ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  309180ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  309757ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  317759ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  319182ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  320761ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  321085ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  322762ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  322762ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  331083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  331086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  331180ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  332182ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  337183ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  337184ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  339763ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  341086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  341088ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  347086ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  349084ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  351083ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  351179ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[  351757ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0

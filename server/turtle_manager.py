@@ -67,7 +67,7 @@ class TurtleManager:
     def _get_status(self):
         if not self._current or not self._current.connected:
             return "offline"
-        if self.pending or self._busy_count > 0:
+        if self.pending or self._active_executes > 0:
             return "busy"
         return "idle"
 

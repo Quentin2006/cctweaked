@@ -1,3 +1,50 @@
 [    5321ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
 [   10325ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
 [   15330ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   31321ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   31323ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   32608ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/api/turtles:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/blocks:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[   34964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/api/turtles:0
+[   34965ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[   34967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[   34967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34970ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34970ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34970ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34970ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34972ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34974ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34974ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34975ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   34975ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   36314ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/blocks:0
+[   36314ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/position:0
+[   36316ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   36317ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/inventory:0
+[   36320ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://100.102.127.19:3001/api/turtles:0
+[   38317ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[   38318ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://100.102.127.19:3001/inventory:0
+[   51606ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Gateway Timeout) @ http://100.102.127.19:3001/inventory:0
