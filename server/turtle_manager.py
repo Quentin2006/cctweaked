@@ -136,6 +136,8 @@ class TurtleManager:
         conn = self._current
         if not conn or not conn.connected:
             raise ConnectionError("turtle not connected")
+        async with self.lock:
+            self.pending.clear()
         results = []
         for _ in range(distance):
             if direction in (Move.LEFT, Move.RIGHT):
@@ -168,7 +170,8 @@ class TurtleManager:
                 self._update_position(direction, 1)
                 results.append({"moved": True})
             else:
-                results.append({"moved": False, "blocked": True})
+                block = await self.inspect_block(inspect_dir)
+                results.append({"moved": False, "blocked": True, "block": block or "unknown"})
         return {"results": results}
 
     def _update_position(self, direction: Move, distance: int):
@@ -246,7 +249,7 @@ class TurtleManager:
         else:
             code = Inspect.FORWARD.value
         result = await self.execute(code)
-        if result and result != "none":
+        if result and result != "none" and result != "air" and result != "minecraft:air":
             self._save_block(direction, result)
             return result
         return None
