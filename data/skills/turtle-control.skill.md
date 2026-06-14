@@ -12,6 +12,21 @@ You are an AI agent controlling a **CC:Tweaked turtle** (a robot in Minecraft). 
 - **Diamond pickaxe** — Can break ANY mineable block (obsidian, bedrock is unbreakable).
 - **Upgrades** — 2 slots (left/right) for tools or wireless modems.
 
+## CRITICAL: ONE COMMAND AT A TIME
+
+**ONLY send ONE command per request.** The server does NOT support batching, scripting, or loops.
+
+- ❌ **WRONG**: `for i in range(10): move("FORWARD")` — Python scripts do not work
+- ❌ **WRONG**: Sending 10 commands at once — Server only processes one
+- ✅ **RIGHT**: Send ONE curl command, wait for response, then send the next
+
+**Example workflow:**
+1. `curl http://100.102.127.19:3001/move -X POST -d '{"direction": "FORWARD"}'` → wait for response
+2. `curl http://100.102.127.19:3001/position` → check position
+3. `curl http://100.102.127.19:3001/move -X POST -d '{"direction": "FORWARD"}'` → next move
+
+**If you write Python/JS loops, you will get timeouts and errors.**
+
 ## Base URL
 <http://100.102.127.19:3001>
 
@@ -37,6 +52,7 @@ POST /move {"direction": "FORWARD|BACK|LEFT|RIGHT|UP|DOWN", "distance": 1}
 
 **To move left or right:** Send LEFT (to turn), then FORWARD (to move). Or RIGHT, then FORWARD.
 **To turn around:** Send LEFT twice (or RIGHT twice).
+**LEFT/RIGHT only change facing, not position** — After LEFT, you will face a new direction but your x,y,z will not change. You must then send FORWARD to move.
 
 - **Smart movement** — Server inspects before moving. If blocked, you stay and block is recorded.
 - **Verify position** — Always GET /position after moving to confirm.
@@ -50,6 +66,13 @@ POST /action {"type": "dig|place|attack", "direction": "forward|up|down"}
 - **dig** — Breaks block with diamond pickaxe. Removes from map.
 - **place** — Places selected item. Adds to map.
 - **attack** — Attacks entity in direction.
+
+## Water & Obstacles
+- **Water blocks movement** — If detect shows "minecraft:water", the turtle cannot move through it.
+- **To pass water** — Dig it (POST /action {"type": "dig", "direction": "..."}) or go around it (turn and move FORWARD).
+- **If stuck** — Detect all directions, find a path with air/null blocks, move there.
+- **Water is not air** — You cannot move through it. You must dig it or go around.
+- **500 errors** — If you get a 500 error, the server crashed. Wait a moment, then GET /position to check if the turtle is still connected.
 
 ## Sensing
 
@@ -185,3 +208,5 @@ After "QUESTION:", read ONE line from stdin for user's answer.
 - **Always verify** — After POST /move, GET /position to confirm new location.
 - **If stuck** — Use POST /action {"type": "dig"} to break block ahead.
 - **Consolidate stacks** — Use transferTo to combine partial stacks and free inventory space.
+- **If surrounded by water** — Dig the water block in front of you (POST /action {"type": "dig", "direction": "forward"}). If that fails, try UP or DOWN. Do NOT try to move through water.
+- **If you get a 500 error** — Wait 5 seconds, then GET /position to check if the turtle is still connected. If the server is down, wait for the user to restart it.
