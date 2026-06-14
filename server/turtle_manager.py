@@ -176,29 +176,30 @@ class TurtleManager:
         return connection.facing
 
     async def execute(self, lua_code: str, timeout: float = 10.0) -> str:
-        conn = self._current
-        if not conn or not conn.connected:
-            raise ConnectionError("turtle not connected")
-        self._active_executes += 1
-        try:
-            req_id = uuid.uuid4().hex[:8]
-            payload = json.dumps({"code": lua_code, "id": req_id})
-            await conn.send(payload)
-            while True:
-                raw = await asyncio.wait_for(conn.recv(), timeout=timeout)
-                if not raw:
-                    raise ConnectionError("turtle not connected")
-                try:
-                    msg = json.loads(raw)
-                except json.JSONDecodeError:
-                    continue
-                if msg.get("id") == req_id:
-                    if "error" in msg:
-                        raise RuntimeError(msg["error"])
-                    return msg.get("result", "")
-            raise asyncio.TimeoutError("turtle did not respond")
-        finally:
-            self._active_executes -= 1
+        async with self.lock:
+            conn = self._current
+            if not conn or not conn.connected:
+                raise ConnectionError("turtle not connected")
+            self._active_executes += 1
+            try:
+                req_id = uuid.uuid4().hex[:8]
+                payload = json.dumps({"code": lua_code, "id": req_id})
+                await conn.send(payload)
+                while True:
+                    raw = await asyncio.wait_for(conn.recv(), timeout=timeout)
+                    if not raw:
+                        raise ConnectionError("turtle not connected")
+                    try:
+                        msg = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
+                    if msg.get("id") == req_id:
+                        if "error" in msg:
+                            raise RuntimeError(msg["error"])
+                        return msg.get("result", "")
+                raise asyncio.TimeoutError("turtle did not respond")
+            finally:
+                self._active_executes -= 1
 
     async def inspect_block(self, direction: str) -> str | None:
         direction = direction.upper()

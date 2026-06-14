@@ -3,6 +3,23 @@ const AI = {
   eventSource: null,
 };
 
+function updateAIStatus(status, type = "idle") {
+  const el = document.getElementById("ai-status");
+  if (!el) return;
+  el.style.display = "block";
+  el.textContent = status;
+  const colors = {
+    idle: "var(--text-dim)",
+    running: "var(--accent-primary)",
+    thinking: "var(--text-secondary)",
+    acting: "var(--accent-primary)",
+    waiting: "var(--accent-warning)",
+    error: "var(--accent-danger)",
+    done: "var(--accent-success)",
+  };
+  el.style.color = colors[type] || colors.idle;
+}
+
 async function startSession() {
   const goal = document.getElementById("ai-goal-input").value.trim();
   if (!goal) return;
@@ -10,6 +27,7 @@ async function startSession() {
   const btn = document.getElementById("ai-start-btn");
   btn.disabled = true;
   btn.textContent = "Starting...";
+  updateAIStatus("Starting...", "running");
 
   try {
     const resp = await fetch("/api/ai/session", {
@@ -24,15 +42,18 @@ async function startSession() {
       addAIEvent("system", 'Session started: "' + goal + '"');
       document.getElementById("ai-goal-input").value = "";
       document.getElementById("ai-cancel-btn").style.display = "inline-flex";
+      updateAIStatus("Running", "running");
     } else {
       addAIEvent("error", data.error || "HTTP " + resp.status);
       btn.disabled = false;
       btn.textContent = "Start";
+      updateAIStatus("Failed to start", "error");
     }
   } catch (err) {
     addAIEvent("error", err.message || "Network error");
     btn.disabled = false;
     btn.textContent = "Start";
+    updateAIStatus("Error", "error");
   }
 }
 
@@ -42,36 +63,45 @@ function connectStream(sessionId) {
   AI.eventSource.addEventListener("thought", function (e) {
     const data = JSON.parse(e.data);
     addAIEvent("thought", data.content);
+    updateAIStatus("Thinking...", "thinking");
   });
   AI.eventSource.addEventListener("action", function (e) {
     const data = JSON.parse(e.data);
-    addAIEvent("action", data.method + " " + data.url);
+    const cmd = data.method || "";
+    addAIEvent("action", cmd);
+    updateAIStatus("Acting: " + cmd.slice(0, 40), "acting");
   });
   AI.eventSource.addEventListener("result", function (e) {
     const data = JSON.parse(e.data);
     addAIEvent("result", JSON.stringify(data.body, null, 1));
+    updateAIStatus("Waiting...", "waiting");
   });
   AI.eventSource.addEventListener("question", function (e) {
     const data = JSON.parse(e.data);
     showAIQuestion(data.content, data.session_id);
+    updateAIStatus("Question: " + data.content.slice(0, 40), "waiting");
   });
   AI.eventSource.addEventListener("done", function (e) {
     const data = JSON.parse(e.data);
     addAIEvent("done", data.content);
+    updateAIStatus("Done", "done");
     endSession();
   });
   AI.eventSource.addEventListener("error", function (e) {
     const data = JSON.parse(e.data);
     addAIEvent("error", data.content);
+    updateAIStatus("Error", "error");
     endSession();
   });
   AI.eventSource.addEventListener("progress", function (e) {
     const data = JSON.parse(e.data);
     updateAIProgress(data);
+    updateAIStatus("Step " + data.step + " / " + (data.max_steps || 100), "running");
   });
 
   AI.eventSource.onerror = function () {
     addAIEvent("error", "Connection lost");
+    updateAIStatus("Disconnected", "error");
     endSession();
   };
 }
@@ -168,6 +198,7 @@ function endSession() {
   document.getElementById("ai-start-btn").disabled = false;
   document.getElementById("ai-start-btn").textContent = "Start";
   document.getElementById("ai-cancel-btn").style.display = "none";
+  updateAIStatus("Idle", "idle");
 }
 
 function updateAIProgress(data) {
