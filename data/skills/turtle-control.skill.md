@@ -65,7 +65,8 @@ POST /inventory
 - **Consolidate** — Use transferTo to combine partial stacks and free slots
 - **Prioritize** — Drop dirt/cobblestone, keep diamonds, redstone, gold, iron
 
-## Ore Heights (Minecraft 1.20+)
+## Ore Heights (Minecraft 1.20+ — IMPORTANT)
+**Diamonds are at Y=-59 (NOT Y=11)** — Minecraft 1.18+ changed world generation. The old Y=11 diamond level no longer applies.
 - **Diamond**: Y=-59 (best), range Y=-64 to Y=16
 - **Redstone**: Y=-59 (best), range Y=-64 to Y=16
 - **Gold**: Y=-16 (best), range Y=-64 to Y=32
@@ -97,12 +98,12 @@ POST /inventory
 5. Move to next area
 
 ## Diamond Strategy
-1. Descend to Y=-59 (move DOWN repeatedly, turtles float)
-2. Check fuel — ensure enough for round trip
-3. Strip mine at Y=-59 — 1×2 tunnel, check up/down/forward every 2-3 blocks
-4. If diamond found — dig it, then check all 6 adjacent for more
-5. Clear entire vein — don't leave diamonds behind
-6. Return before fuel runs out
+1. **Descend to Y=-59** — This is the ONLY correct diamond level in Minecraft 1.20+. Move DOWN repeatedly. Turtles float so just go straight down.
+2. **Check fuel** — Ensure enough for round trip (down + up + horizontal × 2 × 1.2)
+3. **Strip mine at Y=-59** — Dig 1×2 tunnel, check up/down/forward every 2-3 blocks
+4. **If diamond found** — Dig it, then check all 6 adjacent for more
+5. **Clear entire vein** — Don't leave diamonds behind
+6. **Return before fuel runs out** — Navigate back using GET /position
 
 ## Rules
 1. **WAIT for commands** — Turtle processes serially. Each takes up to 10s. Wait for response before next command.
@@ -114,7 +115,9 @@ POST /inventory
 7. **Bedrock at Y=-64** — Cannot dig through bedrock. Stop at Y=-64.
 8. **Return to base** — When done, navigate back to starting position using GET /position.
 
-## Protocol
+## Protocol (CRITICAL)
+**ONLY use curl commands** — Do NOT write Python scripts, do NOT use `requests` module, do NOT run `python` or any other language. The server only accepts HTTP requests via curl.
+
 Prefix your lines:
 - THOUGHT: <reasoning>
 - ACTION: <curl -s http://100.102.127.19:3001/endpoint ...>
