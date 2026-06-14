@@ -463,10 +463,10 @@ class TurtleManager:
                 conn.connected = False
                 if conn._recv_task:
                     conn._recv_task.cancel()
-                if self._current_turtle_id == conn.id:
+                if self._current is conn:
                     self._current_turtle_id = None
                     self._save_state()
-                if conn.id in self.turtles:
+                if self.turtles.get(conn.id) is conn:
                     del self.turtles[conn.id]
         try:
             async with websockets.serve(server, "0.0.0.0", 3000):
