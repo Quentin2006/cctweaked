@@ -46,7 +46,24 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.target.set(0, 0, 0);
+controls.enableZoom = true;
+controls.zoomSpeed = 1.2;
 controls.update();
+
+renderer.domElement.addEventListener('wheel', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}, { passive: false });
+
+renderer.domElement.addEventListener('touchstart', function(e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+renderer.domElement.addEventListener('touchmove', function(e) {
+  e.preventDefault();
+}, { passive: false });
 
 const ambientLight = new THREE.AmbientLight(0x404060);
 scene.add(ambientLight);
