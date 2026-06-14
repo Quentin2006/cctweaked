@@ -34,7 +34,7 @@ class TurtleConnection:
 
     async def recv(self):
         try:
-            return await asyncio.wait_for(self._message_queue.get(), timeout=15.0)
+            return await asyncio.wait_for(self._message_queue.get(), timeout=10.0)
         except asyncio.TimeoutError:
             return None
 
@@ -175,7 +175,7 @@ class TurtleManager:
             return self.facing
         return connection.facing
 
-    async def execute(self, lua_code: str, timeout: float = 15.0) -> str:
+    async def execute(self, lua_code: str, timeout: float = 10.0) -> str:
         conn = self._current
         if not conn or not conn.connected:
             raise ConnectionError("turtle not connected")
@@ -455,6 +455,7 @@ class TurtleManager:
     async def _dispatch_loop(self):
         while True:
             if not self._current or not self._current.connected:
+                self.pending.clear()
                 self._pending_event.clear()
                 try:
                     await asyncio.wait_for(self._pending_event.wait(), timeout=1.0)
@@ -469,6 +470,7 @@ class TurtleManager:
                     self._save_state()
                 if self.turtles.get(conn.id) is conn:
                     del self.turtles[conn.id]
+                self.pending.clear()
                 self._pending_event.clear()
                 try:
                     await asyncio.wait_for(self._pending_event.wait(), timeout=1.0)
@@ -526,7 +528,21 @@ class TurtleManager:
 
             if self._current and self._current.connected:
                 try:
-                    await self._current.send(json.dumps({"code": code}))
+                    req_id = uuid.uuid4().hex[:8]
+                    payload = json.dumps({"code": code, "id": req_id})
+                    await self._current.send(payload)
+                    while True:
+                        raw = await asyncio.wait_for(self._current.recv(), timeout=10.0)
+                        if not raw:
+                            raise ConnectionError("turtle not connected")
+                        try:
+                            msg = json.loads(raw)
+                        except json.JSONDecodeError:
+                            continue
+                        if msg.get("id") == req_id:
+                            if "error" in msg:
+                                raise RuntimeError(msg["error"])
+                            break
                 except (ConnectionError, asyncio.TimeoutError):
                     pass
 
