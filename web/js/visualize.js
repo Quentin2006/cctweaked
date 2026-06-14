@@ -53,6 +53,17 @@ controls.maxDistance = 80;
 controls.maxPolarAngle = Math.PI / 2 - 0.05;
 controls.update();
 
+controls.domElement.addEventListener('wheel', function (e) {
+  if (e.ctrlKey) {
+    controls.zoomSpeed = 0.2;
+  } else if (e.shiftKey) {
+    controls.zoomSpeed = 3.0;
+  } else {
+    controls.zoomSpeed = 0.6;
+  }
+  controls.update();
+}, { passive: true });
+
 const ambientLight = new THREE.AmbientLight(0x404060);
 scene.add(ambientLight);
 

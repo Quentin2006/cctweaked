@@ -28,8 +28,8 @@ def register_turtle_routes(app, manager, ai_manager, blocks_file):
             data = await request.json()
             direction = Move[data["direction"].upper()]
             distance = int(data["distance"])
-            manager.move(direction, distance)
-            return web.json_response({"status": "queued"})
+            result = await manager.smart_move(direction, distance)
+            return web.json_response(result)
         except KeyError:
             return web.json_response(
                 {"error": "Use: FORWARD, BACK, LEFT, RIGHT, UP, DOWN"},
@@ -39,6 +39,14 @@ def register_turtle_routes(app, manager, ai_manager, blocks_file):
             return web.json_response(
                 {"error": "distance must be a non-negative integer"},
                 status=400,
+            )
+        except asyncio.TimeoutError:
+            return web.json_response(
+                {"error": "turtle did not respond"}, status=504
+            )
+        except ConnectionError:
+            return web.json_response(
+                {"error": "turtle not connected"}, status=503
             )
 
     async def handle_detect(request):

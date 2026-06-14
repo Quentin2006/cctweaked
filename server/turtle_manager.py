@@ -23,7 +23,7 @@ class TurtleConnection:
         self.selected_slot = 1
         self.last_active = time.time()
         self._message_queue = asyncio.Queue()
-        self._recv_task = None
+        self._recv_task: asyncio.Task | None = None
 
     async def send(self, message):
         if self.ws and self.connected:
@@ -51,18 +51,44 @@ class TurtleConnection:
 
 
 class TurtleManager:
-    def __init__(self, blocks_file="data/blocks.txt"):
+    def __init__(self, blocks_file="data/blocks.txt", state_file="data/turtle_state.json"):
         self.turtles = {}
         self.pending = []
         self.lock = asyncio.Lock()
         self._current_turtle_id = None
         self.blocks_file = blocks_file
+        self.state_file = state_file
         self.x = 0
         self.y = 0
         self.z = 0
         self.facing = 0
         self._dispatch_task = None
         self._active_executes = 0
+        self._load_state()
+
+    def _load_state(self):
+        try:
+            with open(self.state_file, "r") as f:
+                state = json.load(f)
+            self.x = state.get("x", 0)
+            self.y = state.get("y", 0)
+            self.z = state.get("z", 0)
+            self.facing = state.get("facing", 0)
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            pass
+
+    def _save_state(self):
+        try:
+            state = {
+                "x": self.x,
+                "y": self.y,
+                "z": self.z,
+                "facing": self.facing,
+            }
+            with open(self.state_file, "w") as f:
+                json.dump(state, f)
+        except OSError:
+            pass
 
     def _get_status(self):
         if not self._current or not self._current.connected:
@@ -105,6 +131,45 @@ class TurtleManager:
         for _ in range(distance):
             self.pending.append(direction.value)
         self._update_position(direction, distance)
+
+    async def smart_move(self, direction: Move, distance: int = 1) -> dict:
+        conn = self._current
+        if not conn or not conn.connected:
+            raise ConnectionError("turtle not connected")
+        results = []
+        for _ in range(distance):
+            if direction in (Move.LEFT, Move.RIGHT):
+                result = await self.execute(direction.value)
+                if result == "true":
+                    self._update_position(direction, 1)
+                    results.append({"moved": True, "turned": True})
+                else:
+                    results.append({"moved": False, "error": "turn failed"})
+                continue
+            if direction == Move.BACK:
+                result = await self.execute(direction.value)
+                if result == "true":
+                    self._update_position(direction, 1)
+                    results.append({"moved": True})
+                else:
+                    results.append({"moved": False, "blocked": True})
+                continue
+            inspect_dir = "FORWARD"
+            if direction == Move.UP:
+                inspect_dir = "UP"
+            elif direction == Move.DOWN:
+                inspect_dir = "DOWN"
+            block = await self.inspect_block(inspect_dir)
+            if block:
+                results.append({"moved": False, "blocked": True, "block": block})
+                continue
+            result = await self.execute(direction.value)
+            if result == "true":
+                self._update_position(direction, 1)
+                results.append({"moved": True})
+            else:
+                results.append({"moved": False, "blocked": True})
+        return {"results": results}
 
     def _update_position(self, direction: Move, distance: int):
         conn = self._current
@@ -172,7 +237,7 @@ class TurtleManager:
         finally:
             self._active_executes -= 1
 
-    async def inspect_block(self, direction: str) -> dict | None:
+    async def inspect_block(self, direction: str) -> str | None:
         direction = direction.upper()
         if direction == "UP":
             code = Inspect.UP.value
@@ -186,10 +251,38 @@ class TurtleManager:
             return result
         return None
 
-    def _save_block(self, direction: str, name: str):
-        conn = self._current
-        x, y, z = self._resolve_pos(conn)
-        facing = self._resolve_facing(conn)
+    def _save_block_at(self, x: int, y: int, z: int, name: str):
+        try:
+            with open(self.blocks_file, "a") as f:
+                f.write(f"{x},{y},{z},{name}\n")
+        except OSError:
+            pass
+
+    def _remove_block(self, x: int, y: int, z: int):
+        try:
+            with open(self.blocks_file, "r") as f:
+                lines = f.readlines()
+            with open(self.blocks_file, "w") as f:
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split(",", 3)
+                    if len(parts) == 4:
+                        try:
+                            if (
+                                int(parts[0]) == x
+                                and int(parts[1]) == y
+                                and int(parts[2]) == z
+                            ):
+                                continue
+                        except ValueError:
+                            pass
+                    f.write(line + "\n")
+        except OSError:
+            pass
+
+    def _resolve_offset(self, direction: str, x: int, y: int, z: int, facing: int):
         if direction == "FORWARD":
             if facing == 0:
                 z -= 1
@@ -203,11 +296,14 @@ class TurtleManager:
             y += 1
         elif direction == "DOWN":
             y -= 1
-        try:
-            with open(self.blocks_file, "a") as f:
-                f.write(f"{x},{y},{z},{name}\n")
-        except OSError:
-            pass
+        return x, y, z
+
+    def _save_block(self, direction: str, name: str):
+        conn = self._current
+        x, y, z = self._resolve_pos(conn)
+        facing = self._resolve_facing(conn)
+        x, y, z = self._resolve_offset(direction, x, y, z, facing)
+        self._save_block_at(x, y, z, name)
 
     async def dig(self, direction: str) -> bool:
         direction = direction.upper()
@@ -218,6 +314,12 @@ class TurtleManager:
         else:
             code = Action.DIG.value
         result = await self.execute(code)
+        if result == "true":
+            conn = self._current
+            x, y, z = self._resolve_pos(conn)
+            facing = self._resolve_facing(conn)
+            x, y, z = self._resolve_offset(direction, x, y, z, facing)
+            self._remove_block(x, y, z)
         return result == "true"
 
     async def place(self, direction: str, block: str = None, text: str = None) -> bool:
@@ -230,6 +332,13 @@ class TurtleManager:
         else:
             code = Action.PLACE.value.format(text=text_str)
         result = await self.execute(code)
+        if result == "true":
+            conn = self._current
+            x, y, z = self._resolve_pos(conn)
+            facing = self._resolve_facing(conn)
+            x, y, z = self._resolve_offset(direction, x, y, z, facing)
+            block_name = block or "unknown"
+            self._save_block_at(x, y, z, block_name)
         return result == "true"
 
     async def attack(self, direction: str) -> bool:
@@ -339,6 +448,10 @@ class TurtleManager:
             conn._recv_task = asyncio.create_task(conn._start_recv())
             self.turtles[conn.id] = conn
             self._current_turtle_id = conn.id
+            conn.x = self.x
+            conn.y = self.y
+            conn.z = self.z
+            conn.facing = self.facing
             try:
                 await conn._recv_task
             except websockets.exceptions.ConnectionClosed:
@@ -349,6 +462,9 @@ class TurtleManager:
                     conn._recv_task.cancel()
                 if self._current_turtle_id == conn.id:
                     self._current_turtle_id = None
+                    self._save_state()
+                if conn.id in self.turtles:
+                    del self.turtles[conn.id]
         try:
             async with websockets.serve(server, "0.0.0.0", 3000):
                 await asyncio.Future()

@@ -18,12 +18,22 @@ document.querySelectorAll("[data-direction]").forEach(function (btn) {
       const result = await resp.json();
 
       if (resp.ok) {
-        window.flashButton(btn, true);
-        window.displayResult(
-          "POST /move {direction: \"" + direction + "\", distance: 1}",
-          result,
-          "move"
-        );
+        var first = result.results && result.results[0];
+        if (first && first.blocked) {
+          window.flashButton(btn, false);
+          window.displayResult(
+            "POST /move {direction: \"" + direction + "\", distance: 1}",
+            { blocked: true, block: first.block || "unknown" },
+            "move"
+          );
+        } else {
+          window.flashButton(btn, true);
+          window.displayResult(
+            "POST /move {direction: \"" + direction + "\", distance: 1}",
+            result,
+            "move"
+          );
+        }
       } else {
         window.flashButton(btn, false);
         window.displayResult(
