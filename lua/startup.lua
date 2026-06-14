@@ -71,3 +71,5 @@ for filename, _ in pairs(data.files) do
 end
 
 print("Synced")
+print("Starting client...")
+shell.run(GIST_DIR .. "/client.lua")
