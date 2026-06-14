@@ -215,7 +215,25 @@ class TurtleManager:
 
     def _save_block_at(self, x: int, y: int, z: int, name: str):
         try:
-            with open(self.blocks_file, "a") as f:
+            with open(self.blocks_file, "r+") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split(",", 3)
+                    if len(parts) == 4:
+                        try:
+                            if (
+                                int(parts[0]) == x
+                                and int(parts[1]) == y
+                                and int(parts[2]) == z
+                            ):
+                                return
+                        except ValueError:
+                            pass
+                f.write(f"{x},{y},{z},{name}\n")
+        except FileNotFoundError:
+            with open(self.blocks_file, "w") as f:
                 f.write(f"{x},{y},{z},{name}\n")
         except OSError:
             pass
