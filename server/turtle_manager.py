@@ -130,7 +130,6 @@ class TurtleManager:
     def move(self, direction: Move, distance: int = 1):
         for _ in range(distance):
             self.pending.append(direction.value)
-        self._update_position(direction, distance)
 
     def _update_position(self, direction: Move, distance: int):
         conn = self._current
