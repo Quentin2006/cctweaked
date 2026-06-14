@@ -41,9 +41,12 @@ class TurtleConnection:
     async def _start_recv(self):
         try:
             while True:
-                msg = await self.ws.recv()
+                msg = await asyncio.wait_for(self.ws.recv(), timeout=30.0)
                 if msg:
+                    self.last_active = time.time()
                     await self._message_queue.put(msg)
+        except asyncio.TimeoutError:
+            pass
         except websockets.exceptions.ConnectionClosed:
             pass
         finally:
@@ -453,7 +456,28 @@ class TurtleManager:
 
     async def _dispatch_loop(self):
         while True:
-            if not self.pending or not self._current or not self._current.connected:
+            if not self._current or not self._current.connected:
+                self._pending_event.clear()
+                try:
+                    await asyncio.wait_for(self._pending_event.wait(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    pass
+                continue
+            if self._current and time.time() - self._current.last_active > 30:
+                conn = self._current
+                conn.connected = False
+                if self._current_turtle_id == conn.id:
+                    self._current_turtle_id = None
+                    self._save_state()
+                if self.turtles.get(conn.id) is conn:
+                    del self.turtles[conn.id]
+                self._pending_event.clear()
+                try:
+                    await asyncio.wait_for(self._pending_event.wait(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    pass
+                continue
+            if not self.pending:
                 self._pending_event.clear()
                 try:
                     await asyncio.wait_for(self._pending_event.wait(), timeout=1.0)
