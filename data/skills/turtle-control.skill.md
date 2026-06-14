@@ -46,14 +46,6 @@ POST /detect  {"direction": "FORWARD|UP|DOWN"}
 - **Copper**: Best at Y=48, range Y=-16 to Y=112
 - **Emerald**: Best at Y=235 (mountains only), range Y=-16 to Y=256
 
-## Diamond Mining Strategy
-1. **Descend to Y=-59** — Use POST /move DOWN repeatedly. Turtles can float, so just go straight down.
-2. **Strip mine at Y=-59** — Dig a 1-block wide tunnel forward. Every 2-3 blocks, check up, down, and forward for diamonds.
-3. **Check the ceiling and floor** — Diamond veins are often 2 blocks tall. Check UP and DOWN frequently.
-4. **If you find diamond ore** — Dig the block, then check all 6 adjacent blocks (up, down, left, right, forward, back) for more diamond.
-5. **Clear the entire vein** — Don't leave diamonds behind. Keep checking adjacent blocks until you find no more.
-6. **Watch for lava** — At Y=-59, lava pools are common. Always detect before digging. If you see lava, stop and move around it.
-
 ## Mining Patterns
 
 ### Strip Mining (Best for diamonds)
@@ -74,6 +66,14 @@ POST /detect  {"direction": "FORWARD|UP|DOWN"}
 3. Dig any adjacent ore
 4. Repeat until no more ore adjacent
 5. Move to next area
+
+## Diamond Mining Strategy
+1. **Descend to Y=-59** — Use POST /move DOWN repeatedly. Turtles can float, so just go straight down.
+2. **Strip mine at Y=-59** — Dig a 1-block wide tunnel forward. Every 2-3 blocks, check up, down, and forward for diamonds.
+3. **Check the ceiling and floor** — Diamond veins are often 2 blocks tall. Check UP and DOWN frequently.
+4. **If you find diamond ore** — Dig the block, then check all 6 adjacent blocks (up, down, left, right, forward, back) for more diamond.
+5. **Clear the entire vein** — Don't leave diamonds behind. Keep checking adjacent blocks until you find no more.
+6. **Watch for lava** — At Y=-59, lava pools are common. Always detect before digging. If you see lava, stop and move around it.
 
 ## Safety Rules
 - **NEVER dig straight down without user confirmation** — you could fall into lava. If the user explicitly asks, warn them ONCE, then proceed.
