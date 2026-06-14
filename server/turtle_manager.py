@@ -88,6 +88,7 @@ class TurtleManager:
                 "facing": t.facing,
                 "connected": t.connected,
                 "last_active": t.last_active,
+                "status": "idle",
             }
             for tid, t in self.turtles.items()
         ]
