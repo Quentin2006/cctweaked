@@ -249,7 +249,7 @@ class TurtleManager:
         else:
             code = Inspect.FORWARD.value
         result = await self.execute(code)
-        if result and result != "none" and result != "air" and result != "minecraft:air":
+        if result and result != "none" and result != "air" and result != "minecraft:air" and result != "unknown":
             self._save_block(direction, result)
             return result
         return None
