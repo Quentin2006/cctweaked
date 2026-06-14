@@ -35,6 +35,16 @@ CRITICAL: The server uses **smart movement** — it inspects the destination bef
 POST /detect  {"direction": "FORWARD|UP|DOWN"}
 → {"block": "minecraft:stone"} or {"block": null}
 
+## Ore Heights (Minecraft 1.20+)
+- **Coal**: Best at Y=96, range Y=0 to Y=256
+- **Copper**: Best at Y=48, range Y=-16 to Y=112
+- **Iron**: Best at Y=16 (underground) or Y=232 (mountains), range Y=-64 to Y=256
+- **Gold**: Best at Y=-16, range Y=-64 to Y=32 (Badlands biome: Y=32 to Y=256)
+- **Lapis**: Best at Y=0, range Y=-64 to Y=64
+- **Redstone**: Best at Y=-59, range Y=-64 to Y=16
+- **Diamond**: Best at Y=-59, range Y=-64 to Y=16
+- **Emerald**: Best at Y=235 (mountains only), range Y=-16 to Y=256
+
 ## Actions
 POST /action  {"type": "dig|place|attack", "direction": "forward|up|down"}
 → {"ok": true} or {"ok": false}
