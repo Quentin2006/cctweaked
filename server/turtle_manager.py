@@ -132,48 +132,6 @@ class TurtleManager:
             self.pending.append(direction.value)
         self._update_position(direction, distance)
 
-    async def smart_move(self, direction: Move, distance: int = 1) -> dict:
-        conn = self._current
-        if not conn or not conn.connected:
-            raise ConnectionError("turtle not connected")
-        async with self.lock:
-            self.pending.clear()
-        results = []
-        for _ in range(distance):
-            if direction in (Move.LEFT, Move.RIGHT):
-                result = await self.execute(direction.value)
-                if result == "true":
-                    self._update_position(direction, 1)
-                    results.append({"moved": True, "turned": True})
-                else:
-                    results.append({"moved": False, "error": "turn failed"})
-                continue
-            if direction == Move.BACK:
-                result = await self.execute(direction.value)
-                if result == "true":
-                    self._update_position(direction, 1)
-                    results.append({"moved": True})
-                else:
-                    results.append({"moved": False, "blocked": True})
-                continue
-            inspect_dir = "FORWARD"
-            if direction == Move.UP:
-                inspect_dir = "UP"
-            elif direction == Move.DOWN:
-                inspect_dir = "DOWN"
-            block = await self.inspect_block(inspect_dir)
-            if block:
-                results.append({"moved": False, "blocked": True, "block": block})
-                continue
-            result = await self.execute(direction.value)
-            if result == "true":
-                self._update_position(direction, 1)
-                results.append({"moved": True})
-            else:
-                block = await self.inspect_block(inspect_dir)
-                results.append({"moved": False, "blocked": True, "block": block or "unknown"})
-        return {"results": results}
-
     def _update_position(self, direction: Move, distance: int):
         conn = self._current
         if not conn:
@@ -249,7 +207,7 @@ class TurtleManager:
         else:
             code = Inspect.FORWARD.value
         result = await self.execute(code)
-        if result and result != "none" and result != "air" and result != "minecraft:air" and result != "unknown":
+        if result and result != "none" and result != "air" and result != "minecraft:air":
             self._save_block(direction, result)
             return result
         return None
