@@ -34,7 +34,7 @@ class TurtleConnection:
 
     async def recv(self):
         try:
-            return await asyncio.wait_for(self._message_queue.get(), timeout=5.0)
+            return await asyncio.wait_for(self._message_queue.get(), timeout=15.0)
         except asyncio.TimeoutError:
             return None
 
@@ -177,7 +177,7 @@ class TurtleManager:
             return self.facing
         return connection.facing
 
-    async def execute(self, lua_code: str, timeout: float = 5.0) -> str:
+    async def execute(self, lua_code: str, timeout: float = 15.0) -> str:
         conn = self._current
         if not conn or not conn.connected:
             raise ConnectionError("turtle not connected")

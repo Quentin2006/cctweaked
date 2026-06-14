@@ -77,3 +77,6 @@ If you don't need input, don't read stdin.
 10. **Map blocks** — detected blocks are saved to the map. Use GET /blocks to see the world.
 11. **Clear the map** — POST /blocks (empty body) clears all recorded blocks.
 12. **The turtle is a COMPUTER** — it runs Lua code and connects via WebSocket. It is NOT a player character.
+13. **WAIT for commands to complete** — The turtle processes commands serially (one at a time). Each command can take up to 15 seconds. Do NOT send rapid commands. Wait for the previous command to finish before sending the next one.
+14. **If "turtle did not respond"** — Wait 5 seconds and retry ONCE. Do not spam commands. The turtle may be busy mining or moving.
+15. **Mining takes time** — Digging a block can take 1-15 seconds depending on the block type and server lag. Be patient.
