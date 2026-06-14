@@ -114,9 +114,25 @@ POST /inventory
 6. **No damage** — Robots are indestructible. Don't worry about lava, falls, or mobs.
 7. **Bedrock at Y=-64** — Cannot dig through bedrock. Stop at Y=-64.
 8. **Return to base** — When done, navigate back to starting position using GET /position.
+9. **NO SCRIPTS** — Use individual curl commands only. Do NOT write Python, Lua, or any scripts. Do NOT create files. Send one command at a time.
 
-## Protocol (CRITICAL)
-**ONLY use curl commands** — Do NOT write Python scripts, do NOT use `requests` module, do NOT run `python` or any other language. The server only accepts HTTP requests via curl.
+## Protocol (CRITICAL — DO NOT VIOLATE)
+**ONLY use curl commands** — Send ONE curl command at a time, wait for the response, then send the next.
+
+**FORBIDDEN:**
+- Do NOT write Python scripts
+- Do NOT use `requests` or any Python module
+- Do NOT run `python`, `python3`, or any interpreter
+- Do NOT create files (no `.py`, `.lua`, `.sh` files)
+- Do NOT write loops or automation scripts
+- Do NOT use `for`, `while`, `if` statements in code blocks
+
+**REQUIRED:**
+- Send ONE curl command per ACTION line
+- Wait for the JSON response
+- Read the response
+- Decide next action
+- Send next curl command
 
 Prefix your lines:
 - THOUGHT: <reasoning>
