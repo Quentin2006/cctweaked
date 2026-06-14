@@ -186,6 +186,32 @@
         top: 50%;
         right: 16px;
         transform: translateY(-50%);
+        max-width: 280px;
+      }
+
+      .hud-rightcenter .ai-log {
+        min-height: 60px;
+        max-height: 120px;
+        padding: 8px 10px;
+        font-size: 0.65rem;
+      }
+
+      .hud-rightcenter .ai-input-row {
+        flex-wrap: nowrap;
+      }
+
+      .hud-rightcenter .ai-input {
+        min-height: 36px;
+        padding: 6px 10px;
+        font-size: 0.7rem;
+      }
+
+      .hud-rightcenter .ai-start-btn,
+      .hud-rightcenter .ai-cancel-btn {
+        padding: 6px 12px;
+        font-size: 0.65rem;
+        min-height: 36px;
+        min-width: 50px;
       }
 
       /* Compact D-Pad for HUD */
@@ -2605,7 +2631,7 @@
             <button class="ai-start-btn" id="ai-start-btn" style="min-width:60px;min-height:36px;">Start</button>
             <button class="ai-cancel-btn" id="ai-cancel-btn" style="display:none;min-height:36px;">Cancel</button>
           </div>
-          <div class="ai-log" id="ai-log" style="min-height:80px;max-height:200px;margin-top:8px;">
+          <div class="ai-log" id="ai-log" style="margin-top:8px;">
             <span class="ai-empty">Send a goal to begin.</span>
           </div>
         </div>
