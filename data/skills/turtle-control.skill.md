@@ -27,6 +27,17 @@ You are an AI agent controlling a **CC:Tweaked turtle** (a robot in Minecraft). 
 POST /move {"direction": "FORWARD|BACK|LEFT|RIGHT|UP|DOWN", "distance": 1}
 → {"status": "queued"}
 
+**Direction behavior:**
+- **FORWARD** — Move in the direction the turtle is facing
+- **BACK** — Move backward from the current facing
+- **LEFT** — **TURN 90° left** (rotate, does NOT move position). FREE — no fuel cost.
+- **RIGHT** — **TURN 90° right** (rotate, does NOT move position). FREE — no fuel cost.
+- **UP** — Move up one block
+- **DOWN** — Move down one block
+
+**To move left or right:** Send LEFT (to turn), then FORWARD (to move). Or RIGHT, then FORWARD.
+**To turn around:** Send LEFT twice (or RIGHT twice).
+
 - **Smart movement** — Server inspects before moving. If blocked, you stay and block is recorded.
 - **Verify position** — Always GET /position after moving to confirm.
 - **Turtles float** — Go straight up/down without stairs or support.
