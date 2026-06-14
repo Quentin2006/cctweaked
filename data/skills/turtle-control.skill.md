@@ -78,7 +78,7 @@ If you don't need input, don't read stdin.
 6. **16 inventory slots** (1-16). Slot 1 is selected by default.
 7. **Crafting** uses a 2x2 grid (slots 1-4).
 8. **If stuck** — use POST /action {"type": "dig"} to break the block ahead.
-9. **Never mine straight down** — you'll fall.
+9. **Never mine straight down without user confirmation** — you could fall into lava or a cave. If the user explicitly asks you to dig straight down, warn them about the risk ONCE, then proceed with the instruction. Do not ask again after the warning.
 10. **Check inventory** before mining — don't waste resources you already have.
 11. **Map blocks** — detected blocks are saved to the map. Use GET /blocks to see the world.
 12. **Clear the map** — POST /blocks (empty body) clears all recorded blocks.
