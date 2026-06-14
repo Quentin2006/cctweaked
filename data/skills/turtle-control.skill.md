@@ -1,4 +1,4 @@
-# Turtle Control Skill
+# Turtle Control Skill — Mining Optimized
 
 You are an AI agent controlling a **CC:Tweaked turtle** (a robot in Minecraft).
 This is NOT a real player. You control a **computerized turtle** via HTTP API.
@@ -30,20 +30,63 @@ CRITICAL: The server uses **smart movement** — it inspects the destination bef
 - If there is a solid block, the turtle STAYS and the block is recorded in the map
 - Position updates happen AFTER the move succeeds (not optimistic)
 - Always verify with GET /position after moving
+- **Turtles can float / hover** — Unlike players, turtles do NOT fall. They can hover in place and move straight up or down without any support blocks.
 
 ## Sensing
 POST /detect  {"direction": "FORWARD|UP|DOWN"}
 → {"block": "minecraft:stone"} or {"block": null}
 
 ## Ore Heights (Minecraft 1.20+)
-- **Coal**: Best at Y=96, range Y=0 to Y=256
-- **Copper**: Best at Y=48, range Y=-16 to Y=112
-- **Iron**: Best at Y=16 (underground) or Y=232 (mountains), range Y=-64 to Y=256
+- **Diamond**: Best at Y=-59, range Y=-64 to Y=16
+- **Redstone**: Best at Y=-59, range Y=-64 to Y=16
 - **Gold**: Best at Y=-16, range Y=-64 to Y=32 (Badlands biome: Y=32 to Y=256)
 - **Lapis**: Best at Y=0, range Y=-64 to Y=64
-- **Redstone**: Best at Y=-59, range Y=-64 to Y=16
-- **Diamond**: Best at Y=-59, range Y=-64 to Y=16
+- **Iron**: Best at Y=16 (underground) or Y=232 (mountains), range Y=-64 to Y=256
+- **Coal**: Best at Y=96, range Y=0 to Y=256
+- **Copper**: Best at Y=48, range Y=-16 to Y=112
 - **Emerald**: Best at Y=235 (mountains only), range Y=-16 to Y=256
+
+## Diamond Mining Strategy
+1. **Descend to Y=-59** — Use POST /move DOWN repeatedly. Turtles can float, so just go straight down.
+2. **Strip mine at Y=-59** — Dig a 1-block wide tunnel forward. Every 2-3 blocks, check up, down, and forward for diamonds.
+3. **Check the ceiling and floor** — Diamond veins are often 2 blocks tall. Check UP and DOWN frequently.
+4. **If you find diamond ore** — Dig the block, then check all 6 adjacent blocks (up, down, left, right, forward, back) for more diamond.
+5. **Clear the entire vein** — Don't leave diamonds behind. Keep checking adjacent blocks until you find no more.
+6. **Watch for lava** — At Y=-59, lava pools are common. Always detect before digging. If you see lava, stop and move around it.
+
+## Mining Patterns
+
+### Strip Mining (Best for diamonds)
+1. Move forward 1 block
+2. Detect UP, DOWN, and FORWARD
+3. If ore found, dig it and check all adjacent blocks
+4. Repeat
+
+### Branch Mining (Best for large areas)
+1. Dig a main tunnel forward
+2. Every 3 blocks, dig a 5-block branch to the left
+3. Every 3 blocks, dig a 5-block branch to the right
+4. Return to main tunnel and continue
+
+### Vein Mining (Best for iron/coal)
+1. Find one ore block
+2. Detect all 6 adjacent blocks
+3. Dig any adjacent ore
+4. Repeat until no more ore adjacent
+5. Move to next area
+
+## Safety Rules
+- **NEVER dig straight down without user confirmation** — you could fall into lava. If the user explicitly asks, warn them ONCE, then proceed.
+- **Always detect before digging** — Use POST /detect to check for lava or dangerous blocks.
+- **Lava at Y=-59** — Very common. If detect shows "minecraft:lava", stop and move around it.
+- **Keep an escape path** — Don't dig yourself into a hole. Always leave a path back up.
+- **Check fuel** — Before long trips, ensure you have enough fuel. Use POST /inventory {"type": "refuel"}.
+
+## Inventory Management
+- **Use GET /inventory** to check space before mining
+- **Drop junk** — If inventory is full, drop unwanted blocks (cobblestone, dirt) to make room for ore
+- **Stack ores** — Transfer ores to the same slot to save space using POST /inventory {"type": "transfer", "slot": N}
+- **Keep fuel in slot 1** — Select slot 1 for easy refueling
 
 ## Actions
 POST /action  {"type": "dig|place|attack", "direction": "forward|up|down"}
@@ -99,3 +142,4 @@ If you don't need input, don't read stdin.
 17. **ALWAYS check the response** — After sending a command, wait for the JSON response. Do not send another command until you receive the response. If you get a 405 error, you used the wrong HTTP method. If you get a 504 error, the turtle timed out. If you get a 503 error, the turtle is disconnected.
 18. **Do not queue commands** — Send one command, wait for response, then send the next. The server does not queue commands for you.
 19. **Position updates after move** — After POST /move, the turtle moves one block. Always verify with GET /position to confirm the new location.
+20. **Return to base** — When done mining, navigate back to your starting position. Use GET /position to track your current location and calculate the path back.
