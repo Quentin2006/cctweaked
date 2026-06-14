@@ -9,7 +9,7 @@ from pathlib import Path
 
 DATA_DIR = os.getenv("DATA_DIR", "data")
 SKILL_FILE = os.path.join(DATA_DIR, "skills", "turtle-control.skill.md")
-MAX_STEPS = 100
+MAX_STEPS = 500
 IDLE_TIMEOUT = 300
 SESSION_TIMEOUT = 1800
 
