@@ -144,12 +144,18 @@ const FACING_VECTORS = {
   3: { x: -1, z: 0 },   // west
 };
 
+let targetPosition = new THREE.Vector3(0, 0, 0);
+
 function updateTurtle(pos) {
   turtleGroup.position.set(pos.x, pos.y, pos.z);
   // head faces +Z (south = facing 2).  Rotate Y for other directions.
   // facing: 0=north(-Z), 1=east(+X), 2=south(+Z), 3=west(-X)
   const angles = { 0: Math.PI, 1: -Math.PI / 2, 2: 0, 3: Math.PI / 2 };
   turtleGroup.rotation.y = angles[pos.facing] || 0;
+
+  targetPosition.set(pos.x, pos.y, pos.z);
+  controls.target.lerp(targetPosition, 0.1);
+  controls.update();
 }
 
 async function fetchPosition() {
