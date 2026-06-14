@@ -193,10 +193,18 @@ def register_turtle_routes(app, manager, ai_manager, blocks_file):
             "count": manager.turtle_count,
         })
 
+    async def handle_clear_blocks(request):
+        try:
+            open(blocks_file, "w").close()
+            return web.json_response({"ok": True})
+        except OSError:
+            return web.json_response({"error": "Failed to clear blocks"}, status=500)
+
     # Register routes
     app.router.add_post("/move", handle_move)
     app.router.add_post("/detect", handle_detect)
     app.router.add_get("/blocks", handle_blocks)
+    app.router.add_post("/blocks", handle_clear_blocks)
     app.router.add_get("/position", handle_position)
     app.router.add_post("/action", handle_action)
     app.router.add_get("/inventory", handle_inventory_get)
