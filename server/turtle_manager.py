@@ -39,11 +39,11 @@ class TurtleConnection:
             return None
 
     async def _start_recv(self):
-        """Background task that reads from websocket and puts messages in queue."""
         try:
             while True:
                 msg = await self.ws.recv()
-                await self._message_queue.put(msg)
+                if msg:
+                    await self._message_queue.put(msg)
         except websockets.exceptions.ConnectionClosed:
             pass
         finally:
@@ -327,22 +327,7 @@ class TurtleManager:
             self.turtles[conn.id] = conn
             self._current_turtle_id = conn.id
             try:
-                while True:
-                    msg = await conn.recv()
-                    if msg is None:
-                        break
-                    try:
-                        data = json.loads(msg)
-                    except json.JSONDecodeError:
-                        await ws.send(json.dumps({"error": "invalid JSON"}))
-                        continue
-                    if data.get("type") == "register":
-                        conn.id = data.get("id", conn.id)
-                    elif data.get("type") == "position":
-                        conn.x = data.get("x", conn.x)
-                        conn.y = data.get("y", conn.y)
-                        conn.z = data.get("z", conn.z)
-                        conn.facing = data.get("facing", conn.facing)
+                await conn._recv_task
             except websockets.exceptions.ConnectionClosed:
                 pass
             finally:
