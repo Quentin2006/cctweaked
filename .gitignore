@@ -4,3 +4,14 @@ __pycache__/
 .sisyphus/
 .playwright-mcp/
 *.png
+
+# Local model credentials and runtime agent/session data.
+.env.*
+!.env.example
+*.log
+data/logs/
+data/sessions/
+data/tasks/
+data/memory/
+data/opencode/
+data/turtle_state.json
