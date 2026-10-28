@@ -1,160 +1,81 @@
 # Turtle Control
 
-A real-time web dashboard for controlling a ComputerCraft: Tweaked turtle from your browser. Move, dig, place, attack, inspect blocks, manage inventory, craft items, and visualize the world in 3D.
+A real-time Minecraft CC:Tweaked turtle-control dashboard. A Python asyncio/aiohttp backend translates browser requests into Lua commands sent over WebSockets, while a Three.js view displays discovered blocks and turtle positions.
+
+## Implemented features
+
+- Movement, block inspection, digging/placing, inventory operations, crafting, and fuel controls.
+- Request IDs and serialized command execution for correlating turtle replies, with disconnect handling.
+- Multiple turtle connections and a browser turtle list.
+- A filesystem-backed task queue with priorities, dependencies, atomic claiming, and completion/failure states.
+- Optional OpenCode-driven automation sessions, with actions/results streamed to the browser using server-sent events.
+- Per-session agent data directories, cancellation, and idle/session watchdogs.
+
+These are Minecraft game turtles, not physical robots. The agent integration delegates execution to the external OpenCode CLI.
 
 ## Architecture
 
-```
-┌─────────────────────┐     WebSocket (3000)     ┌─────────────────────┐
-│  CC:Tweaked Turtle   │ ◄──────────────────────► │   Python Server     │
-│  (cc/client.lua)     │    Lua code execution    │   (server.py)       │
-│                      │                          │   TurtleManager.py  │
-└──────────────────────┘                          └────────┬────────────┘
-                                                           │ HTTP (3001)
-                                                           ▼
-                                                  ┌─────────────────────┐
-                                                  │   Web Dashboard     │
-                                                  │  (Vanilla HTML/CSS) │
-                                                  │  - Movement (D-Pad) │
-                                                  │  - Detect/Inspect   │
-                                                  │  - Dig/Place/Attack │
-                                                  │  - Inventory + Drag │
-                                                  │  - Crafting         │
-                                                  │  - 3D World (Three) │
-                                                  │  - Fuel Gauge       │
-                                                  └─────────────────────┘
+```text
+CC:Tweaked Lua client <-> WebSocket :3000 <-> Python server
+                                                  ^
+                                                  | HTTP :3001 + SSE
+                                                  v
+                                  Browser dashboard / Three.js
 ```
 
-The system has two communication channels:
+Tasks and block positions use local files under `DATA_DIR` (default: `data/`), and OpenCode receives a separate data directory per session. The app keeps its active AI-session registry in memory; there is no database service.
 
-- **WebSocket (port 3000)** — Lua code is sent to the turtle for execution (movement, sensing, actions, inventory). The turtle receives code as strings, compiles and runs them via `load()`, and sends back results as JSON.
-- **HTTP (port 3001)** — The web dashboard communicates with the Python server via REST endpoints. The server translates HTTP requests into Lua code sent over the WebSocket.
+## Run locally
 
-## Quick Start
+Python 3.11 or newer is the container's baseline. Install the Python dependencies and start from the repository root:
 
-### 1. Set up the turtle
-
-Copy `cc/client.lua` to your CC:Tweaked turtle. Edit the `SERVER_URL` at the top of the file to point to your server's IP:
-
-```lua
-local SERVER_URL = "ws://192.168.0.47:3000"
-```
-
-Run the script on the turtle. It will connect and wait for commands.
-
-> **Tip**: If your CC:Tweaked computer has internet access, you can use `cc/startup.lua` to auto-sync client code from a GitHub Gist on boot.
-
-### 2. Start the server
-
-```bash
+```sh
 pip install -r requirements.txt
 python server.py
 ```
 
-The server starts on two ports:
+Open `http://localhost:3001`. Copy `lua/client.lua` to the CC:Tweaked turtle, configure its `SERVER_URL` for your server's WebSocket address (`ws://YOUR_SERVER:3000`), and run it in-game.
 
-- `3000` — WebSocket for the turtle connection
-- `3001` — HTTP for the web dashboard
+Manual controls do not require a model provider. AI sessions additionally require the OpenCode CLI, a configured provider/model compatible with the invocation in `server/ai_agent.py`, and `DATA_DIR/skills/turtle-control.skill.md`. The repository includes that skill under `data/skills/`. Keep provider credentials outside Git.
 
-Open `http://localhost:3001` in your browser.
+## Docker
 
-### 3. Using Docker
-
-```bash
+```sh
 docker compose up --build
 ```
 
-## Dashboard Features
+Compose exposes ports 3000 and 3001 and stores runtime data in the `cc-data` volume. It accepts `OPENCODE_API_KEY` from the local environment. The current Dockerfile does not seed `data/skills/` into a fresh volume: provision `skills/turtle-control.skill.md` in that volume before starting an AI session. The basic dashboard and agent-backed execution are separate capabilities; this is not a claim that a fresh container has been validated end to end with a model or game server.
 
-### Movement (D-Pad)
+## Main API surfaces
 
-Six directional buttons: Up, Down, Left, Right, Forward, Back. Each click sends a move command to the turtle. The turtle's position (x, y, z) and facing direction are tracked server-side.
+| Surface | Purpose |
+| --- | --- |
+| `/move`, `/detect`, `/action`, `/inventory` | Turtle commands and inventory |
+| `/blocks`, `/position`, `/api/turtles` | World and connection state |
+| `/api/tasks/*` | Create, claim, complete, fail, and inspect tasks |
+| `/api/ai/*`, `/api/sessions/*` | Start, stream, answer, cancel, and inspect agent sessions |
 
-### Detect
+See `server/routes_turtle.py`, `server/routes_tasks.py`, and `server/routes_ai.py` for the exact methods and payloads.
 
-Inspect blocks in front, above, or below the turtle. Detected blocks are saved to `web/blocks.txt` and appear in the 3D view.
+## Source map
 
-### Actions
+- `server.py`: guarded entry point; starts WebSocket and HTTP services.
+- `server/__init__.py`: application assembly and manager creation.
+- `server/turtle_manager.py`, `server/enums.py`: connections, Lua dispatch, position/inventory operations.
+- `server/task_manager.py`: filesystem task lifecycle and dependency checks.
+- `server/ai_agent.py`: OpenCode subprocess lifecycle and event translation.
+- `server/session_logger.py`: session-persistence helper, not currently wired into the app factory.
+- `server/routes_*.py`: HTTP and SSE handlers.
+- `lua/`: CC:Tweaked client and optional startup helper.
+- `web/index.html`, `web/js/`: dashboard, controls, agent display, and Three.js visualization.
+- `data/skills/`: tracked automation instructions; other agent/session runtime data belongs outside Git.
 
-- **Dig** — Break a block in the chosen direction
-- **Place** — Place a block from the selected inventory slot
-- **Attack** — Attack an entity in the chosen direction
+## Validation and limitations
 
-Each action has a direction selector (Front / Up / Down).
+No automated test suite is currently tracked. A source review is not a live-model, Minecraft, or rendering-performance benchmark. Python dependencies are currently unpinned.
 
-### Inventory
+Run on a trusted network. The API has no authentication layer, sends executable Lua to the game clients, and can start OpenCode with unrestricted permissions. It is a personal prototype rather than an authenticated public service.
 
-A 4×4 grid showing the turtle's 16 inventory slots. Features:
+## Deployment workflow
 
-- **Drag-and-drop** — Move items between slots (click and drag on desktop)
-- **Slot selection** — Click a slot to select it (highlighted with cyan glow)
-- **Item details** — Name and count displayed per slot
-
-### Crafting
-
-A 2×2 crafting grid (slots 1-4) matching CC:Tweaked's built-in crafting UI. Place items in the grid, then click **Craft** to craft the recipe.
-
-### Fuel
-
-A fuel gauge showing the turtle's current fuel level. Animates smoothly and pulses when fuel is low.
-
-### 3D World
-
-A Three.js 3D scene showing:
-
-- Detected blocks at their world positions
-- The turtle as an emerald-green model with a directional indicator
-- A grid floor for spatial reference
-
-The view updates every 3 seconds for blocks and 1.5 seconds for the turtle position.
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/move` | Queue movement commands |
-| `POST` | `/detect` | Inspect a block in a direction |
-| `POST` | `/action` | Execute dig/place/attack |
-| `GET` | `/inventory` | Get full inventory state |
-| `POST` | `/inventory` | Select slot, craft, transfer, drop, suck, refuel, equip |
-| `GET` | `/blocks` | Get all detected block positions |
-| `GET` | `/position` | Get the turtle's current position and facing |
-
-## Lua Client (`cc/client.lua`)
-
-The turtle runs a Lua script that:
-
-1. Connects to the server via WebSocket
-2. Listens for incoming JSON messages with Lua code and optional request IDs
-3. Executes code via `load()` inside a `pcall()` for error handling
-4. Sends results back as JSON
-
-All `turtle.*` API functions are available — dig, place, attack, detect, inspect, getItemDetail, select, transferTo, craft, refuel, equipLeft/Right, etc.
-
-## Project Structure
-
-```
-├── server.py              # HTTP server (aiohttp) with all API endpoints
-├── TurtleManager.py       # Turtle connection, command dispatch, position tracking
-├── requirements.txt       # Python dependencies (aiohttp, websockets)
-├── Dockerfile             # Container build
-├── docker-compose.yml     # Container orchestration
-├── cc/
-│   ├── client.lua         # Lua WebSocket client for the turtle
-│   └── startup.lua        # Auto-sync client from GitHub Gist on boot
-├── web/
-│   ├── index.html         # Dashboard (all CSS inline, ~2100 lines)
-│   ├── move.js            # Movement button handlers
-│   ├── detect.js          # Detect button handlers
-│   ├── action.js          # Dig/place/attack button handlers
-│   ├── inventory.js       # Inventory grid, crafting, drag-and-drop
-│   ├── visualize.js       # Three.js 3D scene
-│   └── blocks.txt         # Persisted block positions (x,y,z,name)
-```
-
-## Tech Stack
-
-- **Backend**: Python 3.11, aiohttp, websockets
-- **Frontend**: Vanilla HTML/CSS/JS (no frameworks)
-- **3D Rendering**: Three.js (CDN, v0.160.0)
-- **Turtle**: CC:Tweaked Lua 5.2
+`.github/workflows/deploy.yml` runs on pushes to `main` and manual dispatch, using a self-hosted runner to update a NAS deployment. Review that workflow before pushing or merging deployment-affecting changes. Merely cloning or reading this repository does not run it.
